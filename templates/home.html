@@ -26,13 +26,12 @@
         url: '/api/upload',
         success: function (file, response) {
             console.log(response);
-            let url = response;
+            let url = response.URL;
             file.dataURL = url;
 
             let urlDiv = file.previewElement.querySelector(".dz-filename").cloneNode(true);
             urlDiv.querySelector("span[data-dz-name]").textContent = url;
             file.previewElement.querySelector(".dz-details").appendChild(urlDiv);
-            //file.previewElement.querySelector("span[data-dz-name]").textContent=url;
         }
     };
 </script>

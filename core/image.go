@@ -5,8 +5,9 @@ import "io"
 type Image struct {
 	Name string
 	Size int64
+	Hash []byte `json:"-"`
 
 	URL string
 
-	Reader io.ReadSeeker
+	Reader io.Reader `json:"-"`
 }

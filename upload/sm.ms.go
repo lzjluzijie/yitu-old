@@ -7,8 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/lzjluzijie/multipartreader"
 	"github.com/lzjluzijie/6tu/core"
+	"github.com/lzjluzijie/multipartreader"
 )
 
 type SMMSUploader struct {
@@ -20,7 +20,7 @@ type SMMSResponse struct {
 }
 
 type SMMSResponseData struct {
-	URL  string
+	URL string
 }
 
 func (uploader *SMMSUploader) Upload(image *core.Image) (err error) {
