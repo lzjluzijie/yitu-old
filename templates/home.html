@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dropzone@5.4.0/dist/min/dropzone.min.css"
+      integrity="sha256-e47xOkXs1JXFbjjpoRr1/LhVcqSzRmGmPqsrUQeVs+g=" crossorigin="anonymous">
+{% endblock %}
+{% block body %}
+<section class="section">
+    <div class="container">
+        <h1 class="title">SecImage</h1>
+
+        <p class="subtitle">
+            WIP
+        </p>
+
+        <form id="drop" class="dropzone"></form>
+
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/dropzone@5.4.0/dist/min/dropzone.min.js"
+        integrity="sha256-Rnxk6lia2GZLfke2EKwKWPjy0q2wCW66SN1gKCXquK4=" crossorigin="anonymous"></script>
+<script>
+    Dropzone.options.drop = {
+        paramName: "image",
+        maxFilesize: 10,
+        url: '/api/upload',
+        success: function (file, response) {
+            console.log(response);
+            let url = response;
+            file.dataURL = url;
+
+            let urlDiv = file.previewElement.querySelector(".dz-filename").cloneNode(true);
+            urlDiv.querySelector("span[data-dz-name]").textContent = url;
+            file.previewElement.querySelector(".dz-details").appendChild(urlDiv);
+            //file.previewElement.querySelector("span[data-dz-name]").textContent=url;
+        }
+    };
+</script>
+{% endblock %}
