@@ -1,6 +1,7 @@
 .idea
 6tu.exe
 6tu.iml
+
 cert
 key
-db
+6tu.db

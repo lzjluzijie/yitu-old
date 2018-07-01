@@ -1,92 +1,58 @@
 package routers
 
 import (
-	"fmt"
-
-	"encoding/base64"
-	"io"
-	"log"
 	"net/http"
 
-	"github.com/lzjluzijie/6tu/core"
-	"github.com/lzjluzijie/6tu/upload"
-	"github.com/syndtr/goleveldb/leveldb"
-	"golang.org/x/crypto/sha3"
+	"fmt"
+	"log"
+
+	"github.com/lzjluzijie/6tu/models"
 	"gopkg.in/macaron.v1"
 )
 
-var db *leveldb.DB
-
 func RegisterRouters(m *macaron.Macaron) {
-	d, err := leveldb.OpenFile("./db", nil)
-	if err != nil {
-		panic(err)
-	}
-	db = d
-
 	m.Get("/", func(ctx *macaron.Context) {
 		ctx.HTML(200, "home")
 	})
 
-	m.Get("/i/:hash", GetImage)
+	m.Get("/i/:short", GetImage)
 
-	m.Post("/api/upload", Upload)
+	m.Group("/api", func() {
+		m.Post("/upload", Upload)
+	})
+
+	log.Println("routers ok")
 }
 
 func GetImage(ctx *macaron.Context) {
-	hashString := ctx.Params(":hash")
-	log.Println(hashString)
-	hash, err := base64.URLEncoding.DecodeString(hashString)
+	short := ctx.Params(":short")
+	image, err := models.GetImageFromShort(short)
 	if err != nil {
 		ctx.Error(403, err.Error())
 		return
 	}
 
-	url, err := db.Get(hash, nil)
-	if err != nil {
-		ctx.Error(403, err.Error())
+	u := image.GetRedirectURL()
+	if u == "" {
+		ctx.Error(404, fmt.Sprintf("not found: %s", short))
 		return
 	}
-
-	ctx.Redirect(string(url), http.StatusTemporaryRedirect)
+	ctx.Redirect(u, http.StatusTemporaryRedirect)
 }
 
 func Upload(ctx *macaron.Context) {
-	fr, fh, err := ctx.GetFile("image")
-	if err != nil {
-		ctx.Error(403, err.Error())
-		return
-	}
-	h := sha3.New512()
-
-	tr := io.TeeReader(fr, h)
-
-	image := &core.Image{
-		Name: fh.Filename,
-		Size: fh.Size,
-
-		Reader: tr,
-	}
-
-	u := &upload.SMMSUploader{}
-
-	err = u.Upload(image)
+	r, fh, err := ctx.GetFile("image")
 	if err != nil {
 		ctx.Error(403, err.Error())
 		return
 	}
 
-	//upload ok
-	hash := h.Sum(nil)
-	err = db.Put(hash, []byte(image.URL), nil)
+	image, err := models.NewImageFromStream(r, fh.Filename, fh.Size)
 	if err != nil {
 		ctx.Error(403, err.Error())
 		return
 	}
 
-	image.URL = fmt.Sprintf("https://6tu.halu.lu/i/%s", base64.URLEncoding.EncodeToString(hash))
-	image.Hash = hash
-	fmt.Println(image)
-
+	log.Println(image)
 	ctx.JSON(200, image)
 }

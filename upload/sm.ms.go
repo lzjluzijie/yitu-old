@@ -7,7 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/lzjluzijie/6tu/core"
+	"io"
+
 	"github.com/lzjluzijie/multipartreader"
 )
 
@@ -23,12 +24,9 @@ type SMMSResponseData struct {
 	URL string
 }
 
-func (uploader *SMMSUploader) Upload(image *core.Image) (err error) {
+func (uploader *SMMSUploader) Upload(r io.Reader, name string, size int64) (url string, err error) {
 	mr := multipartreader.NewMultipartReader()
-	mr.AddFormReader("smfile", image.Name, image.Reader, image.Size)
-	//form := fmt.Sprintf("--%s\r\nContent-Disposition: form-data; name=smfile; filename=\"%s\"\r\n\r\n", mr.Boundary, image.Name)
-	//mr.AddReader(strings.NewReader(form), int64(len(form)))
-	//mr.AddReader(image.Reader, image.Size)
+	mr.AddFormReader(r, "smfile", name, size)
 	if err != nil {
 		return
 	}
@@ -39,7 +37,7 @@ func (uploader *SMMSUploader) Upload(image *core.Image) (err error) {
 	}
 
 	mr.SetupHTTPRequest(req)
-	req.Header.Add("User-Agent", "secimage")
+	req.Header.Add("User-Agent", "6tu")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -60,10 +58,10 @@ func (uploader *SMMSUploader) Upload(image *core.Image) (err error) {
 	}
 
 	if uResp.Code != "success" {
-		return errors.New(fmt.Sprintf("unknown code %s", uResp.Code))
+		err = errors.New(fmt.Sprintf("unknown code %s", uResp.Code))
+		return
 	}
 
-	//log.Println(uResp)
-	image.URL = uResp.Data.URL
+	url = uResp.Data.URL
 	return
 }
