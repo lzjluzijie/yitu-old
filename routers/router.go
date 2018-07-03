@@ -41,16 +41,33 @@ func GetImage(ctx *macaron.Context) {
 }
 
 func Upload(ctx *macaron.Context) {
-	r, fh, err := ctx.GetFile("image")
-	if err != nil {
-		ctx.Error(403, err.Error())
-		return
-	}
+	image := &models.Image{}
+	//upload from url
+	u := ctx.Query("url")
+	if u != "" {
+		resp, err := http.Get(u)
+		if err != nil {
+			ctx.Error(403, err.Error())
+			return
+		}
 
-	image, err := models.NewImageFromStream(r, fh.Filename, fh.Size)
-	if err != nil {
-		ctx.Error(403, err.Error())
-		return
+		image, err = models.NewImageFromStream(resp.Body, resp.Request.URL.Path, resp.ContentLength)
+		if err != nil {
+			ctx.Error(403, err.Error())
+			return
+		}
+	} else {
+		r, fh, err := ctx.GetFile("image")
+		if err != nil {
+			ctx.Error(403, err.Error())
+			return
+		}
+
+		image, err = models.NewImageFromStream(r, fh.Filename, fh.Size)
+		if err != nil {
+			ctx.Error(403, err.Error())
+			return
+		}
 	}
 
 	log.Println(image)
