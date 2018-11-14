@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/lzjluzijie/6tu/onedrive"
+
 	"github.com/go-macaron/pongo2"
 	"github.com/lzjluzijie/6tu/models"
 	"github.com/lzjluzijie/6tu/routers"
@@ -16,6 +18,8 @@ func main() {
 
 	routers.RegisterRouters(m)
 	models.PrepareEngine()
+	onedrive.LoadConfig()
+	onedrive.Refresh()
 
 	//m.Run()
 	go func() {
