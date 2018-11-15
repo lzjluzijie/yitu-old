@@ -35,7 +35,7 @@ func RegisterRouters(m *macaron.Macaron) {
 func GetImage(ctx *macaron.Context) {
 	id := ctx.Params(":id")
 
-	url := "https://halu.lu/"
+	url := "https://6tu.halu.lu/"
 
 	t, ok := ct[id]
 	if !ok || t.Add(59*time.Minute).Before(time.Now()) {
