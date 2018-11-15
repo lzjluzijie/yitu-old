@@ -6,14 +6,13 @@ import (
 
 	"github.com/lzjluzijie/6tu/onedrive"
 
-	"github.com/go-macaron/pongo2"
 	"github.com/lzjluzijie/6tu/routers"
 	"gopkg.in/macaron.v1"
 )
 
 func main() {
 	m := macaron.Classic()
-	m.Use(pongo2.Pongoer())
+	m.Use(macaron.Renderer())
 
 	routers.RegisterRouters(m)
 	onedrive.LoadConfig()

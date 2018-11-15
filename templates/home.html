@@ -1,14 +1,47 @@
-{% extends "base.html" %}
-{% block head %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dropzone@5.4.0/dist/min/dropzone.min.css" integrity="sha256-e47xOkXs1JXFbjjpoRr1/LhVcqSzRmGmPqsrUQeVs+g=" crossorigin="anonymous">
-{% endblock %}
-{% block body %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+        6tu
+    </title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.min.css"
+          integrity="sha256-2pUeJf+y0ltRPSbKOeJh09ipQFYxUdct5nTY6GAXswA=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dropzone@5.5.1/dist/min/dropzone.min.css"
+          integrity="sha256-e47xOkXs1JXFbjjpoRr1/LhVcqSzRmGmPqsrUQeVs+g=" crossorigin="anonymous">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-91028451-7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+        gtag('config', 'UA-91028451-8');
+    </script>
+</head>
+
+<body>
+
+
+<footer>
+    <div class="content has-text-centered">
+        <p>
+            <strong>6tu</strong> by <a href="https://halu.lu/" target="_blank">Halulu</a>
+        </p>
+    </div>
+</footer>
+
 <section class="section">
     <div class="container">
         <h1 class="title">6tu</h1>
 
         <p class="subtitle">
-            WIP
+            Work in process. Testing only. Click the uploaded image to copy the URL.
         </p>
 
         <form id="drop" class="dropzone"></form>
@@ -16,8 +49,10 @@
     </div>
 </section>
 
-<script src="https://cdn.jsdelivr.net/npm/dropzone@5.4.0/dist/min/dropzone.min.js"
-        integrity="sha256-Rnxk6lia2GZLfke2EKwKWPjy0q2wCW66SN1gKCXquK4=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/dropzone@5.5.1/dist/dropzone.min.js"
+        integrity="sha256-zEb5wx+Pe5JVESoANX/evKc1ScsxAemJPM1cG8CmGPE=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js"
+        integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 <script>
     Dropzone.options.drop = {
         paramName: "tu",
@@ -31,7 +66,12 @@
             let urlDiv = file.previewElement.querySelector(".dz-filename").cloneNode(true);
             urlDiv.querySelector("span[data-dz-name]").textContent = url;
             file.previewElement.querySelector(".dz-details").appendChild(urlDiv);
+            file.previewElement.querySelector(".dz-details").setAttribute("data-clipboard-text", url)
+            new ClipboardJS(file.previewElement.querySelector(".dz-details"));
         }
     };
 </script>
-{% endblock %}
+
+</body>
+
+</html>
