@@ -1,28 +1,31 @@
 package onedrive
 
 import (
-	"crypto/rand"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
-
-	"github.com/lzjluzijie/base36"
-	"golang.org/x/crypto/sha3"
+	"time"
 )
 
 type UploadResponse struct {
 	ID string
 }
 
-func Upload(r io.Reader) (id string, hash []byte, err error) {
-	tmp := Random()
-	u := "https://graph.microsoft.com/v1.0/me/drive/root:/6tu/" + tmp + ".png:/content"
+var st int64
+var n int
 
-	h := sha3.New256()
-	tr := io.TeeReader(r, h)
+func init() {
+	st = time.Now().Unix()
+	n = 1
+}
 
-	req, err := http.NewRequest("PUT", u, tr)
+func Upload(name string, r io.Reader) (id string, err error) {
+	u := fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/root:/6tu/%d/%d/%s:/content", st, n, name)
+	n++
+
+	req, err := http.NewRequest("PUT", u, r)
 	if err != nil {
 		return
 	}
@@ -44,19 +47,6 @@ func Upload(r io.Reader) (id string, hash []byte, err error) {
 	jResp := &UploadResponse{}
 	json.Unmarshal(data, jResp)
 
-	hash = h.Sum(nil)
 	id = jResp.ID
 	return
-}
-
-func Random() (random string) {
-	r := make([]byte, 256)
-	_, err := rand.Read(r)
-
-	if err != nil {
-		return ""
-	}
-
-	s := base36.Encode(r)
-	return s[:32]
 }

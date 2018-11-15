@@ -7,7 +7,6 @@ import (
 	"github.com/lzjluzijie/6tu/onedrive"
 
 	"github.com/go-macaron/pongo2"
-	"github.com/lzjluzijie/6tu/models"
 	"github.com/lzjluzijie/6tu/routers"
 	"gopkg.in/macaron.v1"
 )
@@ -17,7 +16,6 @@ func main() {
 	m.Use(pongo2.Pongoer())
 
 	routers.RegisterRouters(m)
-	models.PrepareEngine()
 	onedrive.LoadConfig()
 	onedrive.Refresh()
 

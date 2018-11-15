@@ -1,23 +1,29 @@
 package routers
 
 import (
-	"fmt"
 	"time"
-
-	"github.com/lzjluzijie/6tu/onedrive"
 
 	"log"
 
-	"github.com/lzjluzijie/6tu/models"
+	"github.com/lzjluzijie/6tu/onedrive"
+
 	"gopkg.in/macaron.v1"
 )
+
+var cu map[string]string
+var ct map[string]time.Time
+
+func init() {
+	cu = make(map[string]string)
+	ct = make(map[string]time.Time)
+}
 
 func RegisterRouters(m *macaron.Macaron) {
 	m.Get("/", func(ctx *macaron.Context) {
 		ctx.HTML(200, "home")
 	})
 
-	m.Get("/i/:short", GetImage)
+	m.Get("/i/:id/:name", GetImage)
 
 	m.Group("/api", func() {
 		m.Post("/upload", Upload)
@@ -27,26 +33,22 @@ func RegisterRouters(m *macaron.Macaron) {
 }
 
 func GetImage(ctx *macaron.Context) {
-	short := ctx.Params(":short")
-	image, err := models.GetImageFromShort(short)
-	if err != nil {
-		ctx.Error(403, err.Error())
-		return
-	}
+	id := ctx.Params(":id")
 
-	if image.UpdatedAt.Add(time.Minute * 59).Before(time.Now()) {
-		url := onedrive.GetURL(image.OneDriveID)
-		if url == "" {
-			ctx.Error(404, fmt.Sprintf("not found: %s", short))
-			return
-		}
+	url := "https://halu.lu/"
 
-		image.URL = url
-		models.UpdateImage(image)
+	t, ok := ct[id]
+	if !ok || t.Add(59*time.Minute).Before(time.Now()) {
+		url = onedrive.GetURL(id)
+
+		ct[id] = time.Now()
+		cu[id] = url
+	} else {
+		url, _ = cu[id]
 	}
 
 	ctx.Resp.Header().Add("Cache-Control", "no-cache, no-store, must-revalidate")
 	ctx.Resp.Header().Add("Pragma", "no-cache")
 	ctx.Resp.Header().Add("Expire", "0")
-	ctx.Redirect(image.URL, 302)
+	ctx.Redirect(url, 302)
 }
