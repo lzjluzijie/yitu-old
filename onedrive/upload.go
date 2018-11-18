@@ -60,6 +60,7 @@ func Upload(name string, r io.Reader) (id string, err error) {
 
 func UploadLarge(name string, size int64, r io.Reader) (id string, err error) {
 	u := fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/root:/6tu/%d/%d/%s:/createUploadSession", st, n, name)
+	n++
 
 	fmt.Println(u)
 
