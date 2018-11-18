@@ -32,7 +32,7 @@
         <h1 class="title">6tu</h1>
 
         <p class="subtitle">
-            Work in process. Testing only. Click the uploaded image to copy the URL.
+            Work in process. Testing only. Max file size 20 MiB. Click the uploaded image to copy the URL.
         </p>
 
         <form id="drop" class="dropzone"></form>
@@ -55,7 +55,7 @@
 <script>
     Dropzone.options.drop = {
         paramName: "tu",
-        maxFilesize: 4,
+        maxFilesize: 20,
         url: '/api/upload',
         success: function (file, response) {
             console.log(response);

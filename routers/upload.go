@@ -15,18 +15,29 @@ func Upload(ctx *macaron.Context) {
 	r, fh, err := ctx.GetFile("tu")
 
 	if err != nil {
-		ctx.Error(403, err.Error())
+		ctx.Error(400, err.Error())
 		return
 	}
 
 	name := fh.Filename
 	size := fh.Size
+	id := ""
 
-	//upload
-	id, err := onedrive.Upload(name, r)
-	if err != nil {
-		ctx.Error(403, err.Error())
+	if size >= 20*1024*1024 {
+		ctx.Error(400, "file too big")
 		return
+	} else if size >= 4*1024*1024 {
+		id, err = onedrive.UploadLarge(name, size, r)
+		if err != nil {
+			ctx.Error(500, err.Error())
+			return
+		}
+	} else {
+		id, err = onedrive.Upload(name, r)
+		if err != nil {
+			ctx.Error(500, err.Error())
+			return
+		}
 	}
 
 	////upload from url

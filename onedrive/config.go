@@ -2,6 +2,7 @@ package onedrive
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -17,7 +18,7 @@ type Config struct {
 }
 
 func setHeader(req *http.Request) *http.Request {
-	req.Header.Add("Authorization", "bearer "+config.AccessToken)
+	req.Header.Add("Authorization", fmt.Sprintf("bearer %s", config.AccessToken))
 	req.Header.Add("User-Agent", "6tu")
 	return req
 }
