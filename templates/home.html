@@ -57,6 +57,7 @@
         paramName: "tu",
         maxFilesize: 20,
         url: '/api/upload',
+		timeout: 0,
         success: function (file, response) {
             console.log(response);
             let url = response.URL;
