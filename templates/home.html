@@ -53,11 +53,12 @@
 <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js"
         integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 <script>
+    var myDropzone
     Dropzone.options.drop = {
         paramName: "tu",
         maxFilesize: 20,
         url: '/api/upload',
-		timeout: 0,
+        timeout: 0,
         success: function (file, response) {
             console.log(response);
             let url = response.URL;
@@ -68,8 +69,21 @@
             file.previewElement.querySelector(".dz-details").appendChild(urlDiv);
             file.previewElement.querySelector(".dz-details").setAttribute("data-clipboard-text", url)
             new ClipboardJS(file.previewElement.querySelector(".dz-details"));
+        },
+        init: function () {
+            myDropzone = this;
         }
     };
+
+    document.onpaste = function (event) {
+        var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+        for (index in items) {
+            var item = items[index];
+            if (item.kind === 'file') {
+                myDropzone.addFile(item.getAsFile())
+            }
+        }
+    }
 </script>
 
 </body>
