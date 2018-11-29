@@ -61,7 +61,7 @@
         timeout: 0,
         success: function (file, response) {
             console.log(response);
-            let url = response.URL;
+            let url = response.url;
             file.dataURL = url;
 
             let urlDiv = file.previewElement.querySelector(".dz-filename").cloneNode(true);
