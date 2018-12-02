@@ -23,7 +23,7 @@ func Upload(ctx *macaron.Context) {
 	size := fh.Size
 	id := ""
 
-	if size >= 20*1024*1024 {
+	if size >= 50*1024*1024 {
 		ctx.Error(400, "file too big")
 		return
 	} else if size >= 4*1024*1024 {

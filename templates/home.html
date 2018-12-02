@@ -32,7 +32,7 @@
         <h1 class="title">6tu</h1>
 
         <p class="subtitle">
-            Work in process. Testing only. Max file size 20 MiB. Click the uploaded image to copy the URL.
+            Work in process. Testing only. Max file size 50 MiB. Click the uploaded image to copy the URL.
         </p>
 
         <form id="drop" class="dropzone"></form>
@@ -43,7 +43,7 @@
 <footer>
     <div class="content has-text-centered">
         <p>
-            <strong>6tu</strong> by <a href="https://halu.lu/" target="_blank">Halulu</a>
+            <strong>6tu</strong> by <a href="https://halu.lu/" target="_blank">Halulu</a> <a href="https://t.me/luzhuji" target="_blank">Telegram</a>
         </p>
     </div>
 </footer>
@@ -56,7 +56,7 @@
     var myDropzone
     Dropzone.options.drop = {
         paramName: "tu",
-        maxFilesize: 20,
+        maxFilesize: 50,
         url: '/api/upload',
         timeout: 0,
         success: function (file, response) {
