@@ -68,9 +68,11 @@ func Upload(ctx *macaron.Context) {
 	//	}
 	//}
 
+	url := onedrive.Share(id)
+
 	resp := &UploadResponse{
 		Size: size,
-		URL:  "https://6tu.halu.lu/i/" + id + "/" + name,
+		URL:  url + "?download=1",
 	}
 	ctx.JSON(200, resp)
 }
