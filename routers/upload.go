@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"github.com/lzjluzijie/6tu/onedrive"
+	"github.com/lzjluzijie/yitu/onedrive"
 
 	"gopkg.in/macaron.v1"
 )
@@ -26,14 +26,8 @@ func Upload(ctx *macaron.Context) {
 	if size >= 50*1024*1024 {
 		ctx.Error(400, "file too big")
 		return
-	} else if size >= 4*1024*1024 {
-		id, err = onedrive.UploadLarge(name, size, r)
-		if err != nil {
-			ctx.Error(500, err.Error())
-			return
-		}
 	} else {
-		id, err = onedrive.Upload(name, r)
+		id, err = onedrive.Upload(size, r)
 		if err != nil {
 			ctx.Error(500, err.Error())
 			return

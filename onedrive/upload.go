@@ -19,7 +19,7 @@ type CreateSessionResponse struct {
 }
 
 func Upload(size int64, r io.Reader) (id string, err error) {
-	url := fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/root:/yitu/tmp/%d:/createUploadSession", rand.Uint64())
+	url := fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/root:/yitu/%s/%d:/createUploadSession", date, rand.Uint64())
 
 	req, err := NewRequest("POST", url, nil)
 	if err != nil {

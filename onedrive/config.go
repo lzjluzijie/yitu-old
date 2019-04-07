@@ -7,9 +7,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 )
 
 var config *Config
+var date = time.Now().Format("20060102")
 
 type Config struct {
 	ClientID     string

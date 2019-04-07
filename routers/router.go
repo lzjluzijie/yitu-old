@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"net/http"
 	"time"
 
 	"log"
@@ -23,7 +24,7 @@ func RegisterRouters(m *macaron.Macaron) {
 		ctx.HTML(200, "home")
 	})
 
-	m.Get("/i/:id/:name", GetImage)
+	m.Get("/t/:id/:name", GetImage)
 
 	m.Group("/api", func() {
 		m.Post("/upload", Upload)
@@ -35,7 +36,7 @@ func RegisterRouters(m *macaron.Macaron) {
 func GetImage(ctx *macaron.Context) {
 	id := ctx.Params(":id")
 
-	url := "https://6tu.halu.lu/"
+	url := "https://t.halu.lu/"
 
 	t, ok := ct[id]
 	if !ok || t.Add(59*time.Minute).Before(time.Now()) {
@@ -50,5 +51,5 @@ func GetImage(ctx *macaron.Context) {
 	ctx.Resp.Header().Add("Cache-Control", "no-cache, no-store, must-revalidate")
 	ctx.Resp.Header().Add("Pragma", "no-cache")
 	ctx.Resp.Header().Add("Expire", "0")
-	ctx.Redirect(url, 302)
+	ctx.Redirect(url, http.StatusPermanentRedirect)
 }

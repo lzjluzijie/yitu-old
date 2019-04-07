@@ -21,7 +21,7 @@ func main() {
 	//m.Run()
 	go func() {
 		err := http.ListenAndServe(":80", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "https://6tu.halu.lu"+r.URL.String(), http.StatusMovedPermanently)
+			http.Redirect(w, r, "https://t.halu.lu"+r.URL.String(), http.StatusMovedPermanently)
 		}))
 		if err != nil {
 			fmt.Println(err.Error())
