@@ -11,15 +11,21 @@ import (
 )
 
 type UploadResponse struct {
-	ID string
+	ID              string
+	parentReference ParentReference
+}
+
+type ParentReference struct {
+	ID   string
+	Path string
 }
 
 type CreateSessionResponse struct {
 	UploadUrl string
 }
 
-func Upload(size int64, r io.Reader) (id string, err error) {
-	url := fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/root:/yitu/%s/%d:/createUploadSession", date, rand.Uint64())
+func Upload(name string, size int64, r io.Reader) (id, parent string, err error) {
+	url := fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/root:/yitu/%s/%d/%s:/createUploadSession", date, rand.Uint64(), name)
 
 	req, err := NewRequest("POST", url, nil)
 	if err != nil {
@@ -74,5 +80,6 @@ func Upload(size int64, r io.Reader) (id string, err error) {
 	}
 
 	id = uploadResponse.ID
+	parent = uploadResponse.parentReference.ID
 	return
 }

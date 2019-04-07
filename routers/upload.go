@@ -1,6 +1,10 @@
 package routers
 
 import (
+	"crypto/sha256"
+	"fmt"
+	"io"
+
 	"github.com/lzjluzijie/yitu/onedrive"
 
 	"gopkg.in/macaron.v1"
@@ -12,7 +16,7 @@ type UploadResponse struct {
 }
 
 func Upload(ctx *macaron.Context) {
-	r, fh, err := ctx.GetFile("tu")
+	file, fh, err := ctx.GetFile("tu")
 
 	if err != nil {
 		ctx.Error(400, err.Error())
@@ -21,47 +25,33 @@ func Upload(ctx *macaron.Context) {
 
 	name := fh.Filename
 	size := fh.Size
-	id := ""
 
 	if size >= 50*1024*1024 {
 		ctx.Error(400, "file too big")
 		return
-	} else {
-		id, err = onedrive.Upload(size, r)
-		if err != nil {
-			ctx.Error(500, err.Error())
-			return
-		}
 	}
 
-	////upload from url
-	//u := ctx.Query("url")
-	//if u != "" {
-	//	resp, err := http.Get(u)
-	//	if err != nil {
-	//		ctx.Error(403, err.Error())
-	//		return
-	//	}
-	//
-	//	image, err = models.NewImageFromStream(resp.Body, resp.Request.URL.Path, resp.ContentLength)
-	//	if err != nil {
-	//		ctx.Error(403, err.Error())
-	//		return
-	//	}
-	//} else {
-	//	r, fh, err := ctx.GetFile("tu")
-	//	if err != nil {
-	//		ctx.Error(403, err.Error())
-	//		return
-	//	}
-	//
-	//	image, err = models.NewImageFromStream(r, fh.Filename, fh.Size)
-	//	if err != nil {
-	//		ctx.Error(403, err.Error())
-	//		return
-	//	}
-	//}
+	//hash
+	h := sha256.New()
+	r := io.TeeReader(file, h)
 
+	//upload
+	id, parent, err := onedrive.Upload(name, size, r)
+	if err != nil {
+		ctx.Error(500, err.Error())
+		return
+	}
+
+	hash := fmt.Sprintf("%x", h.Sum(nil))
+
+	//rename parent folder
+	err = onedrive.Rename(parent, hash)
+	if err != nil {
+		ctx.Error(500, err.Error())
+		return
+	}
+
+	//share
 	url := onedrive.Share(id)
 
 	resp := &UploadResponse{

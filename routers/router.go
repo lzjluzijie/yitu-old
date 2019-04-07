@@ -1,7 +1,6 @@
 package routers
 
 import (
-	"net/http"
 	"time"
 
 	"log"
@@ -48,8 +47,5 @@ func GetImage(ctx *macaron.Context) {
 		url, _ = cu[id]
 	}
 
-	ctx.Resp.Header().Add("Cache-Control", "no-cache, no-store, must-revalidate")
-	ctx.Resp.Header().Add("Pragma", "no-cache")
-	ctx.Resp.Header().Add("Expire", "0")
-	ctx.Redirect(url, http.StatusPermanentRedirect)
+	ctx.Redirect(url, 301)
 }

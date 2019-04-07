@@ -12,7 +12,7 @@ type RenameResponse struct {
 	URL string `json:"@microsoft.graph.downloadUrl"`
 }
 
-func Rename(id, name string) (url string, err error) {
+func Rename(id, name string) (err error) {
 	req, err := NewRequest("PATCH", "https://graph.microsoft.com/v1.0/me/drive/items/"+id, strings.NewReader(fmt.Sprintf(`{"name": "%s"}`, name)))
 	if err != nil {
 		return
@@ -35,7 +35,5 @@ func Rename(id, name string) (url string, err error) {
 	if err != nil {
 		return
 	}
-
-	url = renameResponse.URL
 	return
 }
