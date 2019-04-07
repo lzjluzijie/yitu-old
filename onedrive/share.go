@@ -1,12 +1,12 @@
 package onedrive
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type ShareResponse struct {
@@ -21,14 +21,12 @@ type SharedLink struct {
 }
 
 func Share(id string) (url string) {
-	req, err := http.NewRequest("POST", fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/items/%s/createLink", id), bytes.NewBuffer([]byte(`{"type":"view","scope":"anonymous"}`)))
+	req, err := NewRequest("POST", fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/items/%s/createLink", id), strings.NewReader(`{"type":"view","scope":"anonymous"}`))
 	if err != nil {
-		log.Println(err.Error())
 		return ""
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	setHeader(req)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -44,13 +42,13 @@ func Share(id string) (url string) {
 
 	log.Println(string(data))
 
-	jResp := &ShareResponse{}
-	err = json.Unmarshal(data, jResp)
+	shareResponse := &ShareResponse{}
+	err = json.Unmarshal(data, shareResponse)
 	if err != nil {
 		log.Println(err.Error())
 		return ""
 	}
 
-	url = jResp.Link.WebURL
+	url = shareResponse.Link.WebURL
 	return
 }

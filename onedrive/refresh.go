@@ -22,6 +22,7 @@ func Refresh() (err error) {
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {config.RefreshToken},
 	}
+
 	resp, err := http.PostForm("https://login.microsoftonline.com/common/oauth2/v2.0/token", v)
 	if err != nil {
 		return
@@ -43,7 +44,6 @@ func Refresh() (err error) {
 	config.AccessToken = refreshResponse.AccessToken
 	config.RefreshToken = refreshResponse.RefreshToken
 
-	//log.Printf("successfully refreshed: \n%s \n%s", config.AccessToken, config.RefreshToken)
 	SaveConfig()
 
 	go func() {

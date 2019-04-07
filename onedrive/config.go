@@ -3,6 +3,7 @@ package onedrive
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -17,10 +18,15 @@ type Config struct {
 	RefreshToken string
 }
 
-func setHeader(req *http.Request) *http.Request {
+func NewRequest(method, url string, body io.Reader) (req *http.Request, err error) {
+	req, err = http.NewRequest(method, url, body)
+	if err != nil {
+		return
+	}
+
 	req.Header.Add("Authorization", fmt.Sprintf("bearer %s", config.AccessToken))
 	req.Header.Add("User-Agent", "6tu")
-	return req
+	return
 }
 
 func LoadConfig() {

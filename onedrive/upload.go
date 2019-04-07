@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
+	"math/rand"
 	"net/http"
-	"time"
 )
 
 type UploadResponse struct {
@@ -17,24 +18,13 @@ type CreateSessionResponse struct {
 	UploadUrl string
 }
 
-var st int64
-var n int
+func Upload(size int64, r io.Reader) (id string, err error) {
+	url := fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/root:/yitu/tmp/%d:/createUploadSession", rand.Uint64())
 
-func init() {
-	st = time.Now().Unix()
-	n = 1
-}
-
-func Upload(name string, r io.Reader) (id string, err error) {
-	u := fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/root:/6tu/%d/%d/%s:/content", st, n, name)
-	n++
-
-	req, err := http.NewRequest("PUT", u, r)
+	req, err := NewRequest("POST", url, nil)
 	if err != nil {
 		return
 	}
-
-	setHeader(req)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -46,62 +36,24 @@ func Upload(name string, r io.Reader) (id string, err error) {
 		return
 	}
 
-	//log.Println(string(data))
+	log.Println(string(data))
 
-	uResp := &UploadResponse{}
-	err = json.Unmarshal(data, uResp)
+	createSessionResponse := &CreateSessionResponse{}
+	err = json.Unmarshal(data, createSessionResponse)
 	if err != nil {
 		return
 	}
 
-	id = uResp.ID
-	return
-}
+	uploadURL := createSessionResponse.UploadUrl
 
-func UploadLarge(name string, size int64, r io.Reader) (id string, err error) {
-	u := fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/root:/6tu/%d/%d/%s:/createUploadSession", st, n, name)
-	n++
-
-	fmt.Println(u)
-
-	req, err := http.NewRequest("POST", u, nil)
+	req, err = NewRequest("PUT", uploadURL, r)
 	if err != nil {
 		return
 	}
 
-	setHeader(req)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return
-	}
-
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
-
-	fmt.Println(string(data))
-
-	cResp := &CreateSessionResponse{}
-	err = json.Unmarshal(data, cResp)
-	if err != nil {
-		return
-	}
-
-	uploadURL := cResp.UploadUrl
-
-	req, err = http.NewRequest("PUT", uploadURL, r)
-	if err != nil {
-		return
-	}
-
-	//不知道为什么设置header没有用
 	req.Header.Add("Content-Length", fmt.Sprintf("%d", size))
 	req.Header.Add("Content-Range", fmt.Sprintf("bytes 0-%d/%d", size-1, size))
 	req.ContentLength = size
-	setHeader(req)
-	//fmt.Println(req.Header)
 
 	resp, err = http.DefaultClient.Do(req)
 	if err != nil {
@@ -115,12 +67,12 @@ func UploadLarge(name string, size int64, r io.Reader) (id string, err error) {
 
 	//fmt.Println(string(data))
 
-	uResp := &UploadResponse{}
-	err = json.Unmarshal(data, uResp)
+	uploadResponse := &UploadResponse{}
+	err = json.Unmarshal(data, uploadResponse)
 	if err != nil {
 		return
 	}
 
-	id = uResp.ID
+	id = uploadResponse.ID
 	return
 }
