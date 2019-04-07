@@ -1,8 +1,6 @@
 .idea
-6tu.exe
-6tu.iml
+*.iml
 
 cert
 key
-6tu.db
 onedrive.json

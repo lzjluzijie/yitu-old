@@ -10,13 +10,13 @@ import (
 )
 
 type ShareResponse struct {
- 	ID string
- 	Link SharedLink
+	ID   string
+	Link SharedLink
 }
 
 type SharedLink struct {
-	Scope string
-	Type string
+	Scope  string
+	Type   string
 	WebURL string
 }
 

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/lzjluzijie/6tu/onedrive"
+	"github.com/lzjluzijie/yitu/onedrive"
 
-	"github.com/lzjluzijie/6tu/routers"
+	"github.com/lzjluzijie/yitu/routers"
 	"gopkg.in/macaron.v1"
 )
 

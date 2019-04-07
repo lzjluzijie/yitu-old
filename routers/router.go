@@ -5,7 +5,7 @@ import (
 
 	"log"
 
-	"github.com/lzjluzijie/6tu/onedrive"
+	"github.com/lzjluzijie/yitu/onedrive"
 
 	"gopkg.in/macaron.v1"
 )
