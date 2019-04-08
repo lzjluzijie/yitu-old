@@ -15,26 +15,33 @@ func RegisterRouters(router *gin.Engine) {
 	router.Static("/js", "./frontend/dist/js")
 	router.Static("/css", "./frontend/dist/css")
 
-	router.GET("/t/:id/*name", GetTu)
+	router.GET("/t/:id/*type", GetTu)
 
 	api := router.Group("/api")
 	api.POST("/upload", Upload)
 }
 
 func GetTu(c *gin.Context) {
-	t := c.Param("id")
+	id := c.Param("id")
+	t := c.Param("type")
 
-	id, err := strconv.ParseUint(t, 10, 64)
+	tid, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	tu, err := models.GetTuByID(id)
+	tu, err := models.GetTuByID(tid)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 
+	if t == "/webp" || t == "webp" {
+		c.Redirect(http.StatusMovedPermanently, tu.OneDriveWebpURL)
+		return
+	}
+
 	c.Redirect(http.StatusMovedPermanently, tu.OneDriveURL)
+	return
 }

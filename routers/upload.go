@@ -63,7 +63,12 @@ func Upload(c *gin.Context) {
 		c.String(http.StatusBadRequest, fmt.Sprintf("file size does not match: %d, %d", f.Size, size))
 		return
 	}
+
 	tu, err := models.GetTuByHash(hash)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
 	if tu.ID != 0 {
 		resp := &UploadResponse{
 			Name: tu.Name,
@@ -92,8 +97,11 @@ func Upload(c *gin.Context) {
 	}
 
 	//webp
-	webp, err := image.Convert(bimg.WEBP)
-	id, _, err = onedrive.Upload(path+strings.TrimSuffix(name, filepath.Ext(name))+".webp", webp)
+	webp, err := image.Process(bimg.Options{
+		Type:    bimg.WEBP,
+		Quality: 95,
+	})
+	webpID, _, err := onedrive.Upload(path+strings.TrimSuffix(name, filepath.Ext(name))+".webp", webp)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
@@ -107,6 +115,13 @@ func Upload(c *gin.Context) {
 	}
 	url += "?download=1"
 
+	webpURL, err := onedrive.Share(webpID)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+	webpURL += "?download=1"
+
 	//insert to database
 	tu = &models.Tu{
 		Name:             name,
@@ -117,6 +132,8 @@ func Upload(c *gin.Context) {
 		OneDriveFolderID: parent,
 		OneDriveID:       id,
 		OneDriveURL:      url,
+		OneDriveWebpID:   webpID,
+		OneDriveWebpURL:  webpURL,
 	}
 	err = models.InsertTu(tu)
 	if err != nil {
