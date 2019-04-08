@@ -66,11 +66,12 @@ func Upload(c *gin.Context) {
 
 	//insert to database
 	tu := &models.Tu{
-		Name:        name,
-		Size:        size,
-		Hash:        hash,
-		OneDriveID:  id,
-		OneDriveURL: url,
+		Name:             name,
+		Size:             size,
+		Hash:             hash,
+		OneDriveFolderID: parent,
+		OneDriveID:       id,
+		OneDriveURL:      url,
 	}
 	err = models.InsertTu(tu)
 	if err != nil {
