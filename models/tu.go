@@ -11,9 +11,14 @@ type Tu struct {
 	Size int64
 	Hash string
 
+	Width  int
+	Height int
+
 	OneDriveFolderID string
 	OneDriveID       string
 	OneDriveURL      string
+	OneDriveWebpID   string
+	OneDriveWebpURL  string
 
 	CreatedAt time.Time `xorm:"created"`
 	UpdatedAt time.Time `xorm:"updated"`

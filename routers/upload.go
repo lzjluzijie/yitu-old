@@ -6,7 +6,11 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"path/filepath"
+	"strings"
 	"time"
+
+	"gopkg.in/h2non/bimg.v1"
 
 	"github.com/gin-gonic/gin"
 
@@ -60,7 +64,7 @@ func Upload(c *gin.Context) {
 		return
 	}
 	tu, err := models.GetTuByHash(hash)
-	if tu != nil {
+	if tu.ID != 0 {
 		resp := &UploadResponse{
 			Name: tu.Name,
 			Size: tu.Size,
@@ -71,15 +75,25 @@ func Upload(c *gin.Context) {
 		return
 	}
 
-	//upload
-	id, parent, err := onedrive.Upload(fmt.Sprintf(`/yitu/%s/%s/%s`, time.Now().Format("20160102"), hash, name), data)
+	//bimg
+	image := bimg.NewImage(data)
+	is, err := image.Size()
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	//rename parent folder
-	err = onedrive.Rename(parent, hash)
+	//upload
+	path := fmt.Sprintf(`/yitu/%s/%s/`, time.Now().Format("20060102"), hash)
+	id, parent, err := onedrive.Upload(path+name, data)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	//webp
+	webp, err := image.Convert(bimg.WEBP)
+	id, _, err = onedrive.Upload(path+strings.TrimSuffix(name, filepath.Ext(name))+".webp", webp)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
@@ -98,6 +112,8 @@ func Upload(c *gin.Context) {
 		Name:             name,
 		Size:             size,
 		Hash:             hash,
+		Width:            is.Width,
+		Height:           is.Height,
 		OneDriveFolderID: parent,
 		OneDriveID:       id,
 		OneDriveURL:      url,
