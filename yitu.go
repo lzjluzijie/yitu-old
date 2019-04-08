@@ -2,23 +2,25 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/lzjluzijie/yitu/onedrive"
 
 	"github.com/lzjluzijie/yitu/routers"
-	"gopkg.in/macaron.v1"
 )
 
 func main() {
-	m := macaron.Classic()
-	m.Use(macaron.Renderer())
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	routers.RegisterRouters(m)
+	router := gin.Default()
+
+	routers.RegisterRouters(router)
 	onedrive.LoadConfig()
 	onedrive.Refresh()
 
-	//m.Run()
 	go func() {
 		err := http.ListenAndServe(":80", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "https://t.halu.lu"+r.URL.String(), http.StatusMovedPermanently)
@@ -28,7 +30,7 @@ func main() {
 		}
 	}()
 
-	err := http.ListenAndServeTLS(":443", "cert", "key", m)
+	err := http.ListenAndServeTLS(":443", "cert", "key", router)
 	if err != nil {
 		fmt.Println(err.Error())
 	}

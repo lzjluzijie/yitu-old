@@ -31,7 +31,7 @@
                 dropzoneOptions: {
                     paramName: "tu",
                     maxFilesize: 50,
-                    url: 'https://6tu.halu.lu/api/upload',
+                    url: 'https://t.halu.lu/api/upload',
                     timeout: 0,
                     success: ((file, response) => {
                         window.console.log(response);

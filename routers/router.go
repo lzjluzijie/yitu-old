@@ -2,41 +2,42 @@ package routers
 
 import (
 	"log"
+	"net/http"
 	"strconv"
 
-	"github.com/lzjluzijie/yitu/models"
+	"github.com/gin-gonic/gin"
 
-	"gopkg.in/macaron.v1"
+	"github.com/lzjluzijie/yitu/models"
 )
 
-func RegisterRouters(m *macaron.Macaron) {
-	m.Get("/", func(ctx *macaron.Context) {
-		ctx.HTML(200, "home")
-	})
+func RegisterRouters(router *gin.Engine) {
+	router.StaticFile("/", "./frontend/dist/index.html")
+	router.StaticFile("/index.html", "./frontend/dist/index.html")
+	router.Static("/js", "./frontend/dist/js")
+	router.Static("/css", "./frontend/dist/css")
 
-	m.Get("/t/:id/:name", GetTu)
+	router.GET("/t/:id/*name", GetTu)
 
-	m.Group("/api", func() {
-		m.Post("/upload", Upload)
-	})
+	api := router.Group("/api")
+	api.POST("/upload", Upload)
 
 	log.Println("routers ok")
 }
 
-func GetTu(ctx *macaron.Context) {
-	t := ctx.Params(":id")
+func GetTu(c *gin.Context) {
+	t := c.Param("id")
 
 	id, err := strconv.ParseUint(t, 10, 64)
 	if err != nil {
-		ctx.Error(500, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	tu, err := models.GetTuByID(id)
 	if err != nil {
-		ctx.Error(500, err.Error())
+		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	ctx.Redirect(tu.OneDriveURL, 301)
+	c.Redirect(http.StatusMovedPermanently, tu.OneDriveURL)
 }

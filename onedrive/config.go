@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 )
@@ -54,6 +53,4 @@ func SaveConfig() {
 	if err != nil {
 		panic(err.Error())
 	}
-
-	log.Println("saved")
 }

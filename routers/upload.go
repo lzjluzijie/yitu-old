@@ -4,12 +4,13 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/lzjluzijie/yitu/models"
 
 	"github.com/lzjluzijie/yitu/onedrive"
-
-	"gopkg.in/macaron.v1"
 )
 
 type UploadResponse struct {
@@ -17,21 +18,23 @@ type UploadResponse struct {
 	URL  string `json:"url"`
 }
 
-func Upload(ctx *macaron.Context) {
-	file, fh, err := ctx.GetFile("tu")
+func Upload(c *gin.Context) {
+	f, err := c.FormFile("tu")
 
 	if err != nil {
-		ctx.Error(400, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	name := fh.Filename
-	size := fh.Size
+	name := f.Filename
+	size := f.Size
 
 	if size >= 50*1024*1024 {
-		ctx.Error(400, "file too big")
+		c.String(http.StatusBadRequest, "file too big")
 		return
 	}
+
+	file, err := f.Open()
 
 	//hash
 	h := sha256.New()
@@ -40,7 +43,7 @@ func Upload(ctx *macaron.Context) {
 	//upload
 	id, parent, err := onedrive.Upload(name, size, r)
 	if err != nil {
-		ctx.Error(500, err.Error())
+		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -49,14 +52,14 @@ func Upload(ctx *macaron.Context) {
 	//rename parent folder
 	err = onedrive.Rename(parent, hash)
 	if err != nil {
-		ctx.Error(500, err.Error())
+		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	//share
 	url, err := onedrive.Share(id)
 	if err != nil {
-		ctx.Error(500, err.Error())
+		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 	url += "?download=1"
@@ -71,7 +74,7 @@ func Upload(ctx *macaron.Context) {
 	}
 	err = models.InsertTu(tu)
 	if err != nil {
-		ctx.Error(500, err.Error())
+		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -80,5 +83,5 @@ func Upload(ctx *macaron.Context) {
 		Size: size,
 		URL:  fmt.Sprintf("https://t.halu.lu/t/%d/%s", tu.ID, name),
 	}
-	ctx.JSON(200, resp)
+	c.JSON(200, resp)
 }
