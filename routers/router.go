@@ -16,6 +16,8 @@ func RegisterRouters(router *gin.Engine) {
 	router.Static("/css", "./frontend/dist/css")
 
 	router.GET("/t/:id/*type", GetTu)
+	//TODO
+	router.GET("/t/:id", GetTu)
 
 	api := router.Group("/api")
 	api.POST("/upload", Upload)
