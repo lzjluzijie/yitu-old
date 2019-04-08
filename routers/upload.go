@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/lzjluzijie/yitu/models"
+
 	"github.com/lzjluzijie/yitu/onedrive"
 
 	"gopkg.in/macaron.v1"
@@ -52,11 +54,31 @@ func Upload(ctx *macaron.Context) {
 	}
 
 	//share
-	url := onedrive.Share(id)
+	url, err := onedrive.Share(id)
+	if err != nil {
+		ctx.Error(500, err.Error())
+		return
+	}
+	url += "?download=1"
 
+	//insert to database
+	tu := &models.Tu{
+		Name:        name,
+		Size:        size,
+		Hash:        hash,
+		OneDriveID:  id,
+		OneDriveURL: url,
+	}
+	err = models.InsertTu(tu)
+	if err != nil {
+		ctx.Error(500, err.Error())
+		return
+	}
+
+	//finish
 	resp := &UploadResponse{
 		Size: size,
-		URL:  url + "?download=1",
+		URL:  fmt.Sprintf("https://t.halu.lu/t/%d/%s", tu.ID, name),
 	}
 	ctx.JSON(200, resp)
 }

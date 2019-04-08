@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"net/http"
 )
@@ -42,8 +41,6 @@ func Upload(name string, size int64, r io.Reader) (id, parent string, err error)
 		return
 	}
 
-	log.Println(string(data))
-
 	createSessionResponse := &CreateSessionResponse{}
 	err = json.Unmarshal(data, createSessionResponse)
 	if err != nil {
@@ -70,8 +67,6 @@ func Upload(name string, size int64, r io.Reader) (id, parent string, err error)
 	if err != nil {
 		return
 	}
-
-	//fmt.Println(string(data))
 
 	uploadResponse := &UploadResponse{}
 	err = json.Unmarshal(data, uploadResponse)
