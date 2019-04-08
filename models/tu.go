@@ -41,14 +41,6 @@ func GetTuByID(id uint64) (tu *Tu, err error) {
 
 func GetTuByHash(hash string) (tu *Tu, err error) {
 	tu = &Tu{Hash: hash}
-	has, err := x.Get(tu)
-	if err != nil {
-		return
-	}
-
-	if !has {
-		err = errors.New("not found")
-		return
-	}
+	_, err = x.Get(tu)
 	return
 }

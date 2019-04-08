@@ -1,13 +1,10 @@
 package onedrive
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
-	"io/ioutil"
-	"math/rand"
 	"net/http"
-	"time"
 )
 
 type UploadResponse struct {
@@ -24,8 +21,9 @@ type CreateSessionResponse struct {
 	UploadUrl string
 }
 
-func Upload(name string, size int64, r io.Reader) (id, parent string, err error) {
-	url := fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/root:/yitu/%s/%d/%s:/createUploadSession", date, rand.New(rand.NewSource(time.Now().UnixNano())).Uint64(), name)
+func Upload(path string, data []byte) (id, parent string, err error) {
+	size := int64(len(data))
+	url := fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/root:%s:/createUploadSession", path)
 
 	req, err := NewRequest("POST", url, nil)
 	if err != nil {
@@ -37,20 +35,15 @@ func Upload(name string, size int64, r io.Reader) (id, parent string, err error)
 		return
 	}
 
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
-
 	createSessionResponse := &CreateSessionResponse{}
-	err = json.Unmarshal(data, createSessionResponse)
+	err = json.NewDecoder(resp.Body).Decode(createSessionResponse)
 	if err != nil {
 		return
 	}
 
 	uploadURL := createSessionResponse.UploadUrl
 
-	req, err = NewRequest("PUT", uploadURL, r)
+	req, err = NewRequest("PUT", uploadURL, bytes.NewBuffer(data))
 	if err != nil {
 		return
 	}
@@ -64,13 +57,8 @@ func Upload(name string, size int64, r io.Reader) (id, parent string, err error)
 		return
 	}
 
-	data, err = ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
-
 	uploadResponse := &UploadResponse{}
-	err = json.Unmarshal(data, uploadResponse)
+	err = json.NewDecoder(resp.Body).Decode(uploadResponse)
 	if err != nil {
 		return
 	}

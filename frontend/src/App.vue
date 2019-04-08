@@ -14,7 +14,7 @@
 </template>
 
 <script>
-    const VERSION = `v0.2.0`;
+    const VERSION = `v0.3.0-dev`;
 
     import ClipboardJS from 'clipboard';
     import vue2Dropzone from 'vue2-dropzone'

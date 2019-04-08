@@ -4,7 +4,9 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -21,35 +23,60 @@ type UploadResponse struct {
 }
 
 func Upload(c *gin.Context) {
+	//original file
 	f, err := c.FormFile("tu")
-
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	name := f.Filename
-	size := f.Size
 
-	if size >= 50*1024*1024 {
+	if f.Size >= 50*1024*1024 {
 		c.String(http.StatusBadRequest, "file too big")
 		return
 	}
 
 	file, err := f.Open()
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
 
 	//hash
 	h := sha256.New()
 	r := io.TeeReader(file, h)
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+	hash := fmt.Sprintf("%x", h.Sum(nil))
+
+	//check
+	size := int64(len(data))
+	if f.Size != size {
+		c.String(http.StatusBadRequest, fmt.Sprintf("file size does not match: %d, %d", f.Size, size))
+		return
+	}
+	tu, err := models.GetTuByHash(hash)
+	if tu != nil {
+		resp := &UploadResponse{
+			Name: tu.Name,
+			Size: tu.Size,
+			Hash: tu.Hash,
+			URL:  fmt.Sprintf("https://t.halu.lu/t/%d", tu.ID),
+		}
+		c.JSON(200, resp)
+		return
+	}
 
 	//upload
-	id, parent, err := onedrive.Upload(name, size, r)
+	id, parent, err := onedrive.Upload(fmt.Sprintf(`/yitu/%s/%s/%s`, time.Now().Format("20160102"), hash, name), data)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	hash := fmt.Sprintf("%x", h.Sum(nil))
 
 	//rename parent folder
 	err = onedrive.Rename(parent, hash)
@@ -67,7 +94,7 @@ func Upload(c *gin.Context) {
 	url += "?download=1"
 
 	//insert to database
-	tu := &models.Tu{
+	tu = &models.Tu{
 		Name:             name,
 		Size:             size,
 		Hash:             hash,
@@ -86,7 +113,8 @@ func Upload(c *gin.Context) {
 		Name: name,
 		Size: size,
 		Hash: hash,
-		URL:  fmt.Sprintf("https://t.halu.lu/t/%d/%s", tu.ID, name),
+		URL:  fmt.Sprintf("https://t.halu.lu/t/%d", tu.ID),
 	}
 	c.JSON(200, resp)
+	return
 }
