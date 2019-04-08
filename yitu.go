@@ -12,8 +12,11 @@ import (
 	"github.com/lzjluzijie/yitu/routers"
 )
 
+const VERSION = `v0.2.0`
+
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.Printf("yitu %s by halulu", VERSION)
 
 	router := gin.Default()
 

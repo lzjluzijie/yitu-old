@@ -1,7 +1,6 @@
 package routers
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
@@ -20,8 +19,6 @@ func RegisterRouters(router *gin.Engine) {
 
 	api := router.Group("/api")
 	api.POST("/upload", Upload)
-
-	log.Println("routers ok")
 }
 
 func GetTu(c *gin.Context) {

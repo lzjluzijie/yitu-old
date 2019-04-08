@@ -14,7 +14,9 @@ import (
 )
 
 type UploadResponse struct {
+	Name string `json:"name"`
 	Size int64  `json:"size"`
+	Hash string `json:"hash"`
 	URL  string `json:"url"`
 }
 
@@ -81,7 +83,9 @@ func Upload(c *gin.Context) {
 
 	//finish
 	resp := &UploadResponse{
+		Name: name,
 		Size: size,
+		Hash: hash,
 		URL:  fmt.Sprintf("https://t.halu.lu/t/%d/%s", tu.ID, name),
 	}
 	c.JSON(200, resp)

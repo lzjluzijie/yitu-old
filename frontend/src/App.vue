@@ -1,7 +1,7 @@
 <template>
     <section class="section">
         <div class="container">
-            <h1 class="title">6tu</h1>
+            <h1 class="title">yitu</h1>
 
             <p class="subtitle">
                 Work in process. Testing only. Max file size 50 MiB. Click the uploaded image to copy the URL.
@@ -14,6 +14,8 @@
 </template>
 
 <script>
+    const VERSION = `v0.2.0`;
+
     import ClipboardJS from 'clipboard';
     import vue2Dropzone from 'vue2-dropzone'
     import 'vue2-dropzone/dist/vue2Dropzone.min.css'
@@ -23,11 +25,13 @@
         components: {
             vueDropzone: vue2Dropzone
         },
-        mounted: function() {
+        mounted: function () {
             new ClipboardJS('.clipboard');
+            window.console.log(`yitu ${VERSION}`)
         },
         data: function () {
             return {
+                VERSION: VERSION,
                 dropzoneOptions: {
                     paramName: "tu",
                     maxFilesize: 50,
