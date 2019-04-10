@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -88,42 +89,13 @@ func Upload(c *gin.Context) {
 		return
 	}
 
-	//upload
-	path := fmt.Sprintf(`/yitu/%s/%s/`, time.Now().Format("20060102"), hash)
-	id, parent, url, err := onedrive.UploadAndShare(path+name, data)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	//webp
-	webp, err := image.Process(bimg.Options{
-		Type:    bimg.WEBP,
-		Quality: 95,
-	})
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	webpID, _, webpURL, err := onedrive.UploadAndShare(path+strings.TrimSuffix(name, filepath.Ext(name))+".webp", webp)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
-
 	//insert to database
 	tu = &models.Tu{
-		Name:             name,
-		Size:             size,
-		Hash:             hash,
-		Width:            is.Width,
-		Height:           is.Height,
-		OneDriveFolderID: parent,
-		OneDriveID:       id,
-		OneDriveURL:      url,
-		OneDriveWebpID:   webpID,
-		OneDriveWebpURL:  webpURL,
+		Name:   name,
+		Size:   size,
+		Hash:   hash,
+		Width:  is.Width,
+		Height: is.Height,
 	}
 	err = models.InsertTu(tu)
 	if err != nil {
@@ -131,7 +103,6 @@ func Upload(c *gin.Context) {
 		return
 	}
 
-	//finish
 	resp := &UploadResponse{
 		Name: name,
 		Size: size,
@@ -139,5 +110,52 @@ func Upload(c *gin.Context) {
 		URL:  fmt.Sprintf("https://t.halu.lu/t/%d", tu.ID),
 	}
 	c.JSON(200, resp)
+
+	//async upload
+	go func() {
+		path := fmt.Sprintf(`/yitu/%s/%s/`, time.Now().Format("20060102"), hash)
+		id, parent, url, err := onedrive.UploadAndShare(path+name, data)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+
+		tu.OneDriveFolderID = parent
+		tu.OneDriveID = id
+		tu.OneDriveURL = url
+
+		//update
+		err = models.UpdateTu(tu)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+
+		//webp
+		webp, err := image.Process(bimg.Options{
+			Type:    bimg.WEBP,
+			Quality: 95,
+		})
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+
+		webpID, _, webpURL, err := onedrive.UploadAndShare(path+strings.TrimSuffix(name, filepath.Ext(name))+".webp", webp)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		tu.OneDriveWebpID = webpID
+		tu.OneDriveWebpURL = webpURL
+
+		//update webp
+		err = models.UpdateTu(tu)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+	}()
+
 	return
 }

@@ -30,6 +30,11 @@ func InsertTu(tu *Tu) (err error) {
 	return
 }
 
+func UpdateTu(tu *Tu) (err error) {
+	_, err = x.ID(tu.ID).Update(tu)
+	return
+}
+
 func GetTuByID(id uint64) (tu *Tu, err error) {
 	tu = new(Tu)
 	has, err := x.ID(id).Get(tu)
