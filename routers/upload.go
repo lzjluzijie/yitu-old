@@ -99,7 +99,7 @@ func Upload(c *gin.Context) {
 	//webp
 	webp, err := image.Process(bimg.Options{
 		Type:    bimg.WEBP,
-		Quality: 100,
+		Quality: 95,
 	})
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
