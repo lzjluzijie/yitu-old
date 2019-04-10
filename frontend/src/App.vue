@@ -46,7 +46,22 @@
                         urlDiv.querySelector("span[data-dz-name]").textContent = url;
                         file.previewElement.querySelector(".dz-details").appendChild(urlDiv);
                         file.previewElement.querySelector(".dz-details").setAttribute("data-clipboard-text", url);
-                        file.previewElement.querySelector(".dz-details").classList.add("clipboard");
+
+                        let copyButton = document.createElement("a");
+                        copyButton.innerText = "Copy URL";
+                        copyButton.setAttribute("data-clipboard-text", url);
+                        copyButton.classList.add("button");
+                        copyButton.classList.add("is-success");
+                        copyButton.classList.add("clipboard");
+                        file.previewElement.querySelector(".dz-details").appendChild(copyButton);
+
+                        let webpButton = document.createElement("copyButton");
+                        webpButton.innerText = "Copy WebP URL";
+                        webpButton.setAttribute("data-clipboard-text", url + "/webp");
+                        webpButton.classList.add("button");
+                        webpButton.classList.add("is-success");
+                        webpButton.classList.add("clipboard");
+                        file.previewElement.querySelector(".dz-details").appendChild(webpButton);
                     }),
                 }
             }
