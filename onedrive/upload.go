@@ -67,3 +67,17 @@ func Upload(path string, data []byte) (id, parent string, err error) {
 	parent = uploadResponse.ParentReference.ID
 	return
 }
+
+func UploadAndShare(path string, data []byte) (id, parent, url string, err error) {
+	id, parent, err = Upload(path, data)
+	if err != nil {
+		return
+	}
+
+	url, err = Share(id)
+	if err != nil {
+		return
+	}
+	url += "?download=1"
+	return
+}

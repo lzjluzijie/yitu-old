@@ -80,17 +80,17 @@ func Upload(c *gin.Context) {
 		return
 	}
 
-	//bimg
+	//bimg check image
 	image := bimg.NewImage(data)
 	is, err := image.Size()
 	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	//upload
 	path := fmt.Sprintf(`/yitu/%s/%s/`, time.Now().Format("20060102"), hash)
-	id, parent, err := onedrive.Upload(path+name, data)
+	id, parent, url, err := onedrive.UploadAndShare(path+name, data)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
@@ -99,28 +99,18 @@ func Upload(c *gin.Context) {
 	//webp
 	webp, err := image.Process(bimg.Options{
 		Type:    bimg.WEBP,
-		Quality: 95,
+		Quality: 100,
 	})
-	webpID, _, err := onedrive.Upload(path+strings.TrimSuffix(name, filepath.Ext(name))+".webp", webp)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	//share
-	url, err := onedrive.Share(id)
+	webpID, _, webpURL, err := onedrive.UploadAndShare(path+strings.TrimSuffix(name, filepath.Ext(name))+".webp", webp)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
-	url += "?download=1"
-
-	webpURL, err := onedrive.Share(webpID)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
-	webpURL += "?download=1"
 
 	//insert to database
 	tu = &models.Tu{
