@@ -20,6 +20,8 @@ import (
 	"github.com/lzjluzijie/yitu/onedrive"
 )
 
+const fhdWidth = 1920
+
 type UploadResponse struct {
 	Name string `json:"name"`
 	Size int64  `json:"size"`
@@ -89,13 +91,16 @@ func Upload(c *gin.Context) {
 		return
 	}
 
+	width := is.Width
+	height := is.Height
+
 	//insert to database
 	tu = &models.Tu{
 		Name:   name,
 		Size:   size,
 		Hash:   hash,
-		Width:  is.Width,
-		Height: is.Height,
+		Width:  width,
+		Height: height,
 	}
 	err = models.InsertTu(tu)
 	if err != nil {
@@ -112,8 +117,10 @@ func Upload(c *gin.Context) {
 	c.JSON(200, resp)
 
 	//async upload
+	path := fmt.Sprintf(`/yitu/%s/%s/`, time.Now().Format("20060102"), hash)
+	ext := filepath.Ext(name)
+	noext := strings.TrimSuffix(name, ext)
 	go func() {
-		path := fmt.Sprintf(`/yitu/%s/%s/`, time.Now().Format("20060102"), hash)
 		id, parent, url, err := onedrive.UploadAndShare(path+name, data)
 		if err != nil {
 			log.Println(err.Error())
@@ -132,7 +139,10 @@ func Upload(c *gin.Context) {
 			return
 		}
 
-		//webp
+	}()
+
+	//WebP
+	go func() {
 		webp, err := image.Process(bimg.Options{
 			Type:    bimg.WEBP,
 			Quality: 95,
@@ -142,13 +152,13 @@ func Upload(c *gin.Context) {
 			return
 		}
 
-		webpID, _, webpURL, err := onedrive.UploadAndShare(path+strings.TrimSuffix(name, filepath.Ext(name))+".webp", webp)
+		webpID, _, webpURL, err := onedrive.UploadAndShare(path+noext+".webp", webp)
 		if err != nil {
 			log.Println(err.Error())
 			return
 		}
-		tu.OneDriveWebpID = webpID
-		tu.OneDriveWebpURL = webpURL
+		tu.OneDriveWebPID = webpID
+		tu.OneDriveWebPURL = webpURL
 
 		//update webp
 		err = models.UpdateTu(tu)
@@ -157,6 +167,65 @@ func Upload(c *gin.Context) {
 			return
 		}
 	}()
+
+	if width > fhdWidth {
+		fhdHeight := int(height * fhdWidth / width)
+
+		//FHD
+		go func() {
+			fhd, err := image.Process(bimg.Options{
+				Width:   fhdWidth,
+				Height:  fhdHeight,
+				Quality: 95,
+			})
+			if err != nil {
+				log.Println(err.Error())
+				return
+			}
+
+			fhdID, _, fhdURL, err := onedrive.UploadAndShare(path+noext+".fhd"+ext, fhd)
+			if err != nil {
+				log.Println(err.Error())
+				return
+			}
+			tu.OneDriveFHDID = fhdID
+			tu.OneDriveFHDURL = fhdURL
+
+			err = models.UpdateTu(tu)
+			if err != nil {
+				log.Println(err.Error())
+				return
+			}
+		}()
+
+		//FHD WebP
+		go func() {
+			fhd, err := image.Process(bimg.Options{
+				Width:   fhdWidth,
+				Height:  fhdHeight,
+				Type:    bimg.WEBP,
+				Quality: 95,
+			})
+			if err != nil {
+				log.Println(err.Error())
+				return
+			}
+
+			fhdWebpID, _, fhdWebpURL, err := onedrive.UploadAndShare(path+noext+".fhd.webp", fhd)
+			if err != nil {
+				log.Println(err.Error())
+				return
+			}
+			tu.OneDriveFHDWebPID = fhdWebpID
+			tu.OneDriveFHDWebPURL = fhdWebpURL
+
+			err = models.UpdateTu(tu)
+			if err != nil {
+				log.Println(err.Error())
+				return
+			}
+		}()
+	}
 
 	return
 }

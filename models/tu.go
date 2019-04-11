@@ -14,11 +14,15 @@ type Tu struct {
 	Width  int
 	Height int
 
-	OneDriveFolderID string
-	OneDriveID       string
-	OneDriveURL      string
-	OneDriveWebpID   string
-	OneDriveWebpURL  string
+	OneDriveFolderID   string
+	OneDriveID         string
+	OneDriveURL        string
+	OneDriveWebPID     string `xorm:"'one_drive_webp_id'"`
+	OneDriveWebPURL    string `xorm:"'one_drive_webp_url'"`
+	OneDriveFHDID      string `xorm:"'one_drive_fhd_id'"`
+	OneDriveFHDURL     string `xorm:"'one_drive_fhd_url'"`
+	OneDriveFHDWebPID  string `xorm:"'one_drive_fhd_webp_id'"`
+	OneDriveFHDWebPURL string `xorm:"'one_drive_fhd_webp_url'"`
 
 	CreatedAt time.Time `xorm:"created"`
 	UpdatedAt time.Time `xorm:"updated"`

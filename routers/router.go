@@ -39,8 +39,8 @@ func GetTu(c *gin.Context) {
 		return
 	}
 
-	if t == "/webp" || t == "webp" {
-		c.Redirect(http.StatusMovedPermanently, tu.OneDriveWebpURL)
+	if (t == "/webp" || t == "webp") && tu.OneDriveWebPURL != "" {
+		c.Redirect(http.StatusMovedPermanently, tu.OneDriveWebPURL)
 		return
 	}
 
