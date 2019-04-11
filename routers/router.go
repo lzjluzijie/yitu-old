@@ -44,6 +44,15 @@ func GetTu(c *gin.Context) {
 		return
 	}
 
+	if (t == "/fhd" || t == "fhd") && tu.OneDriveFHDURL != "" {
+		c.Redirect(http.StatusMovedPermanently, tu.OneDriveFHDURL)
+		return
+	}
+	if (t == "/fhdwebp" || t == "fhdwebp") && tu.OneDriveFHDWebPURL != "" {
+		c.Redirect(http.StatusMovedPermanently, tu.OneDriveFHDWebPURL)
+		return
+	}
+
 	c.Redirect(http.StatusMovedPermanently, tu.OneDriveURL)
 	return
 }
