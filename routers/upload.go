@@ -117,6 +117,7 @@ func Upload(c *gin.Context) {
 		id, parent, url, err := onedrive.UploadAndShare(path+name, data)
 		if err != nil {
 			log.Println(err.Error())
+			err = models.DeleteTu(tu)
 			return
 		}
 
