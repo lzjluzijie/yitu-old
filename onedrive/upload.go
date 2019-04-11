@@ -25,10 +25,12 @@ func Upload(path string, data []byte) (id, parent string, err error) {
 	size := int64(len(data))
 	url := fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/root:%s:/createUploadSession", path)
 
-	req, err := NewRequest("POST", url, nil)
+	req, err := NewRequest("POST", url, bytes.NewBufferString(`{"item": {"@microsoft.graph.conflictBehavior": "rename"}}`))
 	if err != nil {
 		return
 	}
+
+	req.Header.Add("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

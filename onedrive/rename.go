@@ -1,11 +1,11 @@
 package onedrive
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strings"
 )
 
 type RenameResponse struct {
@@ -13,7 +13,7 @@ type RenameResponse struct {
 }
 
 func Rename(id, name string) (err error) {
-	req, err := NewRequest("PATCH", "https://graph.microsoft.com/v1.0/me/drive/items/"+id, strings.NewReader(fmt.Sprintf(`{"name": "%s"}`, name)))
+	req, err := NewRequest("PATCH", "https://graph.microsoft.com/v1.0/me/drive/items/"+id, bytes.NewBufferString(fmt.Sprintf(`{"name": "%s"}`, name)))
 	if err != nil {
 		return
 	}
