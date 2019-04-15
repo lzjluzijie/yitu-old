@@ -16,9 +16,13 @@
 <script>
     const VERSION = `v0.3.0-dev`;
 
+    import Vue from 'vue'
     import ClipboardJS from 'clipboard';
     import vue2Dropzone from 'vue2-dropzone'
     import 'vue2-dropzone/dist/vue2Dropzone.min.css'
+    import CopyButton from './components/CopyButton.vue'
+
+    const CopyButtonClass = Vue.extend(CopyButton);
 
     export default {
         name: 'app',
@@ -47,21 +51,23 @@
                         file.previewElement.querySelector(".dz-details").appendChild(urlDiv);
                         file.previewElement.querySelector(".dz-details").setAttribute("data-clipboard-text", url);
 
-                        let copyButton = document.createElement("a");
-                        copyButton.innerText = "Copy URL";
-                        copyButton.setAttribute("data-clipboard-text", url);
-                        copyButton.classList.add("button");
-                        copyButton.classList.add("is-success");
-                        copyButton.classList.add("clipboard");
-                        file.previewElement.querySelector(".dz-details").appendChild(copyButton);
+                        let copyButton = new CopyButtonClass({
+                            propsData: {
+                                text: 'Copy URL',
+                                url: url,
+                            }
+                        });
+                        copyButton.$mount();
+                        file.previewElement.querySelector(".dz-details").appendChild(copyButton.$el);
 
-                        let webpButton = document.createElement("copyButton");
-                        webpButton.innerText = "Copy WebP URL";
-                        webpButton.setAttribute("data-clipboard-text", url + "/webp");
-                        webpButton.classList.add("button");
-                        webpButton.classList.add("is-success");
-                        webpButton.classList.add("clipboard");
-                        file.previewElement.querySelector(".dz-details").appendChild(webpButton);
+                        let webpButton = new CopyButtonClass({
+                            propsData: {
+                                text: 'Copy WebP URL',
+                                url: url + "/webp",
+                            }
+                        });
+                        webpButton.$mount();
+                        file.previewElement.querySelector(".dz-details").appendChild(webpButton.$el);
                     }),
                 }
             }
