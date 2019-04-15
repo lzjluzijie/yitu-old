@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	"github.com/lzjluzijie/yitu/onedrive"
@@ -19,6 +20,7 @@ func main() {
 	log.Printf("yitu %s by halulu", VERSION)
 
 	router := gin.Default()
+	router.Use(cors.Default())
 
 	routers.RegisterRouters(router)
 	onedrive.LoadConfig()
