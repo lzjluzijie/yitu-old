@@ -99,6 +99,7 @@ func Upload(c *gin.Context) {
 		Name:   name,
 		Size:   size,
 		Hash:   hash,
+		IP:     c.ClientIP(),
 		Width:  width,
 		Height: height,
 	}

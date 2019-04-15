@@ -10,6 +10,7 @@ type Tu struct {
 	Name string
 	Size int64
 	Hash string
+	IP   string
 
 	Width  int
 	Height int
