@@ -35,7 +35,12 @@ func GetTu(c *gin.Context) {
 
 	tu, err := models.GetTuByID(tid)
 	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
+		if err.Error() != "not found" {
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		c.String(http.StatusNotFound, err.Error())
 		return
 	}
 
