@@ -13,7 +13,7 @@ import (
 	"github.com/lzjluzijie/yitu/routers"
 )
 
-const VERSION = `v0.3.0`
+const VERSION = `v0.3.1`
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)

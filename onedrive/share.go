@@ -48,11 +48,24 @@ func Share(id string) (url string, err error) {
 	return
 }
 
-func GetGuestURL(s string) (g string, err error) {
-	resp, err := http.Get(s)
+var client = &http.Client{
+	CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	},
+}
+
+func GetGuestURL(url string) (g string, err error) {
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return
 	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return
+	}
+
+	err = nil
 
 	if resp.StatusCode != 301 {
 		err = errors.New(fmt.Sprintf("invalid http status code: %d", resp.StatusCode))
