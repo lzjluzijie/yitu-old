@@ -129,6 +129,13 @@ func Upload(c *gin.Context) {
 			return
 		}
 
+		g, err := onedrive.GetGuestURL(url)
+		if err != nil {
+			log.Println(err.Error())
+		} else {
+			url = g
+		}
+
 		tu.OneDriveFolderID = parent
 		tu.OneDriveID = id
 		tu.OneDriveURL = url
@@ -139,7 +146,6 @@ func Upload(c *gin.Context) {
 			log.Println(err.Error())
 			return
 		}
-
 	}()
 
 	//WebP
@@ -153,13 +159,21 @@ func Upload(c *gin.Context) {
 			return
 		}
 
-		webpID, _, webpURL, err := onedrive.UploadAndShare(path+noext+".webp", webp)
+		id, _, url, err := onedrive.UploadAndShare(path+noext+".webp", webp)
 		if err != nil {
 			log.Println(err.Error())
 			return
 		}
-		tu.OneDriveWebPID = webpID
-		tu.OneDriveWebPURL = webpURL
+
+		g, err := onedrive.GetGuestURL(url)
+		if err != nil {
+			log.Println(err.Error())
+		} else {
+			url = g
+		}
+
+		tu.OneDriveWebPID = id
+		tu.OneDriveWebPURL = url
 
 		//update webp
 		err = models.UpdateTu(tu)
@@ -184,13 +198,21 @@ func Upload(c *gin.Context) {
 				return
 			}
 
-			fhdID, _, fhdURL, err := onedrive.UploadAndShare(path+noext+".fhd"+ext, fhd)
+			id, _, url, err := onedrive.UploadAndShare(path+noext+".fhd"+ext, fhd)
 			if err != nil {
 				log.Println(err.Error())
 				return
 			}
-			tu.OneDriveFHDID = fhdID
-			tu.OneDriveFHDURL = fhdURL
+
+			g, err := onedrive.GetGuestURL(url)
+			if err != nil {
+				log.Println(err.Error())
+			} else {
+				url = g
+			}
+
+			tu.OneDriveFHDID = id
+			tu.OneDriveFHDURL = url
 
 			err = models.UpdateTu(tu)
 			if err != nil {
@@ -212,13 +234,21 @@ func Upload(c *gin.Context) {
 				return
 			}
 
-			fhdWebpID, _, fhdWebpURL, err := onedrive.UploadAndShare(path+noext+".fhd.webp", fhd)
+			id, _, url, err := onedrive.UploadAndShare(path+noext+".fhd.webp", fhd)
 			if err != nil {
 				log.Println(err.Error())
 				return
 			}
-			tu.OneDriveFHDWebPID = fhdWebpID
-			tu.OneDriveFHDWebPURL = fhdWebpURL
+
+			g, err := onedrive.GetGuestURL(url)
+			if err != nil {
+				log.Println(err.Error())
+			} else {
+				url = g
+			}
+
+			tu.OneDriveFHDWebPID = id
+			tu.OneDriveFHDWebPURL = url
 
 			err = models.UpdateTu(tu)
 			if err != nil {

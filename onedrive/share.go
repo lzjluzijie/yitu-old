@@ -2,6 +2,7 @@ package onedrive
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -44,5 +45,20 @@ func Share(id string) (url string, err error) {
 	}
 
 	url = shareResponse.Link.WebURL
+	return
+}
+
+func GetGuestURL(s string) (g string, err error) {
+	resp, err := http.Get(s)
+	if err != nil {
+		return
+	}
+
+	if resp.StatusCode != 301 {
+		err = errors.New(fmt.Sprintf("invalid http status code: %d", resp.StatusCode))
+		return
+	}
+
+	g = resp.Header.Get("Location")
 	return
 }
