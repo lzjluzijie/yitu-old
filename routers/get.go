@@ -12,13 +12,20 @@ func GetTu(c *gin.Context) {
 	id := c.Param("id")
 	t := c.Param("type")
 
-	tid, err := strconv.ParseUint(id, 10, 64)
-	if err != nil {
-		c.String(http.StatusBadRequest, err.Error())
-		return
+	var tu *models.Tu
+	var err error
+
+	if len(id) == 64 {
+		tu, err = models.GetTuByHash(id)
+	} else {
+		tid, err := strconv.ParseUint(id, 10, 64)
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
+		tu, err = models.GetTuByID(tid)
 	}
 
-	tu, err := models.GetTuByID(tid)
 	if err != nil {
 		if err.Error() == "not found" {
 			c.String(http.StatusNotFound, err.Error())

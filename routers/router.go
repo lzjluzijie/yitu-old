@@ -10,9 +10,9 @@ func RegisterRouters(router *gin.Engine) {
 	router.Static("/js", "./frontend/dist/js")
 	router.Static("/css", "./frontend/dist/css")
 
-	router.GET("/t/:id/*type", GetTu)
 	//TODO
 	router.GET("/t/:id", GetTu)
+	router.GET("/t/:id/*type", GetTu)
 
 	api := router.Group("/api")
 	api.POST("/upload", Upload)
