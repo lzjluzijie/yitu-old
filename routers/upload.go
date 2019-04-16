@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -23,10 +24,22 @@ import (
 const fhdWidth = 1920
 
 type UploadResponse struct {
-	Name string `json:"name"`
-	Size int64  `json:"size"`
-	Hash string `json:"hash"`
-	URL  string `json:"url"`
+	Name      string `json:"name"`
+	Size      int64  `json:"size"`
+	Hash      string `json:"hash"`
+	URL       string `json:"url"`
+	DeleteURL string `json:"delete_url"`
+}
+
+func RandomDeleteCode() (dc string) {
+	r := make([]byte, 8)
+	_, err := rand.Read(r)
+	if err != nil {
+		panic(err)
+	}
+
+	dc = fmt.Sprintf("%x", r)
+	return
 }
 
 func Upload(c *gin.Context) {
@@ -94,14 +107,17 @@ func Upload(c *gin.Context) {
 	width := is.Width
 	height := is.Height
 
+	dc := RandomDeleteCode()
+
 	//insert to database
 	tu = &models.Tu{
-		Name:   name,
-		Size:   size,
-		Hash:   hash,
-		IP:     c.ClientIP(),
-		Width:  width,
-		Height: height,
+		Name:       name,
+		Size:       size,
+		Hash:       hash,
+		IP:         c.ClientIP(),
+		DeleteCode: dc,
+		Width:      width,
+		Height:     height,
 	}
 	err = models.InsertTu(tu)
 	if err != nil {
@@ -110,10 +126,11 @@ func Upload(c *gin.Context) {
 	}
 
 	resp := &UploadResponse{
-		Name: name,
-		Size: size,
-		Hash: hash,
-		URL:  fmt.Sprintf("https://t.halu.lu/t/%d", tu.ID),
+		Name:      name,
+		Size:      size,
+		Hash:      hash,
+		URL:       fmt.Sprintf("https://t.halu.lu/t/%d", tu.ID),
+		DeleteURL: fmt.Sprintf("https://t.halu.lu/api/delete/%s", dc),
 	}
 	c.JSON(200, resp)
 

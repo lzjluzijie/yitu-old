@@ -12,6 +12,8 @@ type Tu struct {
 	Hash string
 	IP   string
 
+	DeleteCode string
+
 	Width  int
 	Height int
 
@@ -41,6 +43,22 @@ func UpdateTu(tu *Tu) (err error) {
 }
 
 func DeleteTu(tu *Tu) (err error) {
+	_, err = x.ID(tu.ID).Delete(tu)
+	return
+}
+
+func DeleteByCode(dc string) (err error) {
+	tu := &Tu{DeleteCode: dc}
+	has, err := x.Get(tu)
+	if err != nil {
+		return
+	}
+
+	if !has {
+		err = errors.New("not found")
+		return
+	}
+
 	_, err = x.ID(tu.ID).Delete(tu)
 	return
 }
