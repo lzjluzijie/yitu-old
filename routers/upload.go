@@ -80,22 +80,6 @@ func Upload(c *gin.Context) {
 		return
 	}
 
-	tu, err := models.GetTuByHash(hash)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
-	if tu.ID != 0 {
-		resp := &UploadResponse{
-			Name: tu.Name,
-			Size: tu.Size,
-			Hash: tu.Hash,
-			URL:  fmt.Sprintf("https://t.halu.lu/t/%d", tu.ID),
-		}
-		c.JSON(200, resp)
-		return
-	}
-
 	//bimg check image
 	image := bimg.NewImage(data)
 	is, err := image.Size()
@@ -110,7 +94,7 @@ func Upload(c *gin.Context) {
 	dc := RandomDeleteCode()
 
 	//insert to database
-	tu = &models.Tu{
+	tu := &models.Tu{
 		Name:       name,
 		Size:       size,
 		Hash:       hash,
