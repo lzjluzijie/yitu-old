@@ -3,7 +3,6 @@ package onedrive
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -32,8 +31,6 @@ func Refresh() (err error) {
 	if err != nil {
 		return
 	}
-
-	log.Println(string(data))
 
 	refreshResponse := &RefreshResponse{}
 	err = json.Unmarshal(data, refreshResponse)

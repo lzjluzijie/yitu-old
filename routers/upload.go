@@ -83,10 +83,30 @@ func Upload(c *gin.Context) {
 	}
 	hash := fmt.Sprintf("%x", h.Sum(nil))
 
-	//check
+	//check file size
 	size := int64(len(data))
 	if f.Size != size {
 		c.String(http.StatusBadRequest, fmt.Sprintf("file size does not match: %d, %d", f.Size, size))
+		return
+	}
+
+	//check hash, insert new if already exist
+	tu, err := models.GetTuByHash(hash)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+	if tu.ID != 0 {
+		tu.ID = 0
+		tu.DeleteCode = RandomDeleteCode()
+
+		err = models.InsertTu(tu)
+		if err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		c.JSON(200, GetUploadResponse(tu))
 		return
 	}
 
@@ -104,7 +124,7 @@ func Upload(c *gin.Context) {
 	dc := RandomDeleteCode()
 
 	//insert to database
-	tu := &models.Tu{
+	tu = &models.Tu{
 		Name:       name,
 		Size:       size,
 		Hash:       hash,
