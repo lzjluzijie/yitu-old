@@ -20,7 +20,10 @@ func main() {
 	log.Printf("yitu %s by halulu", VERSION)
 
 	router := gin.Default()
-	router.Use(cors.Default())
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{"*"}
+	corsConfig.AllowHeaders = []string{"*"}
+	router.Use(cors.New(corsConfig))
 
 	routers.RegisterRouters(router)
 	onedrive.LoadConfig()
