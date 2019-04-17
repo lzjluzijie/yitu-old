@@ -31,6 +31,16 @@ type UploadResponse struct {
 	DeleteURL string `json:"delete_url"`
 }
 
+func GetUploadResponse(tu *models.Tu) (resp UploadResponse) {
+	return UploadResponse{
+		Name:      tu.Name,
+		Size:      tu.Size,
+		Hash:      tu.Hash,
+		URL:       fmt.Sprintf("https://t.halu.lu/t/%d", tu.ID),
+		DeleteURL: fmt.Sprintf("https://t.halu.lu/api/delete/%s", tu.DeleteCode),
+	}
+}
+
 func RandomDeleteCode() (dc string) {
 	r := make([]byte, 8)
 	_, err := rand.Read(r)
@@ -109,14 +119,7 @@ func Upload(c *gin.Context) {
 		return
 	}
 
-	resp := &UploadResponse{
-		Name:      name,
-		Size:      size,
-		Hash:      hash,
-		URL:       fmt.Sprintf("https://t.halu.lu/t/%d", tu.ID),
-		DeleteURL: fmt.Sprintf("https://t.halu.lu/api/delete/%s", dc),
-	}
-	c.JSON(200, resp)
+	c.JSON(200, GetUploadResponse(tu))
 
 	//async upload
 	path := fmt.Sprintf(`/yitu/%s/%s/`, time.Now().Format("20060102"), hash)

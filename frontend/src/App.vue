@@ -43,6 +43,8 @@
                     url: 'https://t.halu.lu/api/upload',
                     timeout: 0,
                     acceptedFiles: "image/*",
+                    thumbnailWidth: 500,
+                    thumbnailHeight: 500,
                     success: ((file, response) => {
                         window.console.log(response);
                         const url = response.url;

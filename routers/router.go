@@ -17,6 +17,7 @@ func RegisterRouters(router *gin.Engine) {
 	api := router.Group("/api")
 	api.POST("/upload", Upload)
 	api.GET("/delete/:dc", Delete)
+	api.GET("/history", GetUploadHistory)
 
 	return
 }
