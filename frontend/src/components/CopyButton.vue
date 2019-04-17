@@ -10,5 +10,7 @@
 </script>
 
 <style scoped>
-
+.clipboard{
+    margin-top: 3px;
+}
 </style>

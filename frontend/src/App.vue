@@ -4,7 +4,8 @@
             <h1 class="title">yitu</h1>
 
             <p class="subtitle">
-                Work in process. Testing only. Max file size 50 MiB. Click the uploaded image to copy the URL.
+                Work in process. Testing only. Max file size 50 MiB.
+                开发中，仅供测试，最大文件大小50MB。
             </p>
 
             <vue-dropzone ref="myVueDropzone" id="dropzone" :options="dropzoneOptions"></vue-dropzone>
@@ -41,6 +42,7 @@
                     maxFilesize: 50,
                     url: 'https://t.halu.lu/api/upload',
                     timeout: 0,
+                    acceptedFiles: "image/*",
                     success: ((file, response) => {
                         window.console.log(response);
                         const url = response.url;
