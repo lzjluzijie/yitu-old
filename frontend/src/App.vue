@@ -31,8 +31,18 @@
             vueDropzone: vue2Dropzone
         },
         mounted: function () {
-            new ClipboardJS('.clipboard');
             window.console.log(`yitu ${VERSION}`)
+            new ClipboardJS('.clipboard');
+
+            document.onpaste = ((event) => {
+                const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+                for (const index in items) {
+                    const item = items[index];
+                    if (item.kind === 'file') {
+                        this.$refs.myVueDropzone.addFile(item.getAsFile())
+                    }
+                }
+            })
         },
         data: function () {
             return {
