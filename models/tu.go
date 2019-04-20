@@ -85,7 +85,7 @@ func GetTuByHash(hash string) (tu *Tu, err error) {
 
 func GetUploadHistory(ip string) (t []*Tu, err error) {
 	t = make([]*Tu, 0)
-	//todo timezone
-	err = x.Where("ip = ? and created_at > ?", ip, time.Now().Add(-12*time.Hour)).Find(&t)
+	//todo fix timezone, this is -2 hour if server is CST
+	err = x.Where("ip = ? and created_at > ?", ip, time.Now().Add(-10*time.Hour)).Find(&t)
 	return
 }

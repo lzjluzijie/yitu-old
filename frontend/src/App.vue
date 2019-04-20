@@ -4,8 +4,8 @@
             <h1 class="title">yitu</h1>
 
             <p class="subtitle">
-                Work in process. Testing only. Delete at any time. Max file size 50 MiB.
-                开发中，仅供测试，随时删库，最大文件大小50MB。
+                Work in process. Max file size 50 MiB.
+                开发中，最大文件大小50MB。
             </p>
 
             <vue-dropzone ref="myVueDropzone" id="dropzone" :options="dropzoneOptions"></vue-dropzone>
@@ -15,7 +15,7 @@
 </template>
 
 <script>
-    const VERSION = `v1.0.0-dev`;
+    const VERSION = `v1.0.0`;
 
     import Vue from 'vue'
     import ClipboardJS from 'clipboard';
