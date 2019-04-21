@@ -10,7 +10,6 @@ func RegisterRouters(router *gin.Engine) {
 	router.Static("/js", "./frontend/dist/js")
 	router.Static("/css", "./frontend/dist/css")
 
-	//TODO
 	router.GET("/t/:id", GetTu)
 	router.GET("/t/:id/*type", GetTu)
 

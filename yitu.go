@@ -19,13 +19,14 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Printf("yitu %s by halulu", VERSION)
 
-	router := gin.Default()
+	engine := gin.Default()
+
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowOrigins = []string{"*"}
 	corsConfig.AllowHeaders = []string{"*"}
-	router.Use(cors.New(corsConfig))
+	engine.Use(cors.New(corsConfig))
 
-	routers.RegisterRouters(router)
+	routers.RegisterRouters(engine)
 	onedrive.LoadConfig()
 	onedrive.Refresh()
 
@@ -38,7 +39,7 @@ func main() {
 		}
 	}()
 
-	err := http.ListenAndServeTLS(":443", "cert", "key", router)
+	err := http.ListenAndServeTLS(":443", "cert", "key", engine)
 	if err != nil {
 		fmt.Println(err.Error())
 	}

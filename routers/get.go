@@ -17,6 +17,16 @@ func GetTu(c *gin.Context) {
 
 	if len(id) == 64 {
 		tu, err = models.GetTuByHash(id)
+		if err != nil {
+			if err.Error() == "not found" {
+				c.String(http.StatusNotFound, err.Error())
+				return
+			}
+
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		}
+
 	} else {
 		tid, err := strconv.ParseUint(id, 10, 64)
 		if err != nil {
@@ -24,16 +34,16 @@ func GetTu(c *gin.Context) {
 			return
 		}
 		tu, err = models.GetTuByID(tid)
-	}
+		if err != nil {
+			if err.Error() == "not found" {
+				c.String(http.StatusNotFound, err.Error())
+				return
+			}
 
-	if err != nil {
-		if err.Error() == "not found" {
-			c.String(http.StatusNotFound, err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		c.String(http.StatusInternalServerError, err.Error())
-		return
 	}
 
 	if (t == "/webp" || t == "webp") && tu.OneDriveWebPURL != "" {
