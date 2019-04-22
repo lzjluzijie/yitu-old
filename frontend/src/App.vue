@@ -4,11 +4,16 @@
             <h1 class="title">yitu</h1>
 
             <p class="subtitle">
-                Work in process. Max file size 50 MiB.
-                开发中，最大文件大小50MB。
+                Work in progress. Max file size 50 MiB.&nbsp;
+                开发中，最大文件大小 50MiB。
             </p>
 
-            <vue-dropzone ref="myVueDropzone" id="dropzone" :options="dropzoneOptions"></vue-dropzone>
+            <vue-dropzone
+                ref="myVueDropzone"
+                id="dropzone"
+                :options="dropzoneOptions"
+                @vdropzone-success="success"
+            ></vue-dropzone>
 
         </div>
     </section>
@@ -30,58 +35,59 @@
         components: {
             vueDropzone: vue2Dropzone
         },
-        mounted: function () {
-            window.console.log(`yitu ${VERSION}`)
+        mounted() {
+            console.log(`yitu ${VERSION}`)
             new ClipboardJS('.clipboard');
 
             document.onpaste = ((event) => {
-                const items = (event.clipboardData || event.originalEvent.clipboardData).items;
-                for (const index in items) {
-                    const item = items[index];
+                const items = Array.from((event.clipboardData || event.originalEvent.clipboardData).items);
+                items.forEach(item => {
                     if (item.kind === 'file') {
                         this.$refs.myVueDropzone.addFile(item.getAsFile())
                     }
-                }
+                })
             })
         },
-        data: function () {
+        data() {
             return {
-                VERSION: VERSION,
+                VERSION,
                 dropzoneOptions: {
                     paramName: "tu",
                     maxFilesize: 50,
                     url: 'https://t.halu.lu/api/upload',
                     timeout: 0,
                     acceptedFiles: "image/*",
-                    success: ((file, response) => {
-                        window.console.log(response);
-                        const url = response.url;
-                        file.dataURL = url;
-
-                        let urlDiv = file.previewElement.querySelector(".dz-filename").cloneNode(true);
-                        urlDiv.querySelector("span[data-dz-name]").textContent = url;
-                        file.previewElement.querySelector(".dz-details").appendChild(urlDiv);
-                        file.previewElement.querySelector(".dz-details").setAttribute("data-clipboard-text", url);
-
-                        let copyButton = new CopyButtonClass({
-                            propsData: {
-                                text: 'Copy URL',
-                                url: url,
-                            }
-                        });
-                        copyButton.$mount();
-                        file.previewElement.querySelector(".dz-details").appendChild(copyButton.$el);
-
-                        let webpButton = new CopyButtonClass({
-                            propsData: {
-                                text: 'Copy WebP URL',
-                                url: url + "/webp",
-                            }
-                        });
-                        webpButton.$mount();
-                        file.previewElement.querySelector(".dz-details").appendChild(webpButton.$el);
-                    }),
                 }
+            }
+        },
+        methods: {
+            success(file, response) {
+                const url = response.url;
+                file.dataURL = url;
+
+                let urlDiv = file.previewElement.querySelector(".dz-filename").cloneNode(true);
+                urlDiv.querySelector("span[data-dz-name]").textContent = url;
+                const details = file.previewElement.querySelector(".dz-details")
+                details.appendChild(urlDiv);
+                details.setAttribute("data-clipboard-text", url);
+
+                let copyButton = new CopyButtonClass({
+                    propsData: {
+                        text: 'Copy URL',
+                        url,
+                    }
+                });
+                copyButton.$mount();
+                details.appendChild(copyButton.$el);
+
+                let webpButton = new CopyButtonClass({
+                    propsData: {
+                        text: 'Copy WebP URL',
+                        url: url + "/webp",
+                    }
+                });
+                webpButton.$mount();
+                details.appendChild(webpButton.$el);
             }
         }
     }
