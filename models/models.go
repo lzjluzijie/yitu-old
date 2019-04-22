@@ -1,7 +1,6 @@
 package models
 
 import (
-	"log"
 	"os"
 	"time"
 
@@ -12,7 +11,7 @@ import (
 
 var x *xorm.Engine
 
-func init() {
+func PrepareEngine() {
 	engine, err := xorm.NewEngine("sqlite3", "./yitu.db?parseTime=true&loc=Local")
 	if err != nil {
 		panic(err)
@@ -33,5 +32,8 @@ func init() {
 	}
 
 	x = engine
-	log.Println("engine ok")
+}
+
+func Engine() *xorm.Engine {
+	return x
 }

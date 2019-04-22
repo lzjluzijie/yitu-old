@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/lzjluzijie/yitu/models"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
@@ -18,6 +20,8 @@ const VERSION = `v1.0.0`
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Printf("yitu %s by halulu", VERSION)
+
+	models.PrepareEngine()
 
 	engine := gin.Default()
 
