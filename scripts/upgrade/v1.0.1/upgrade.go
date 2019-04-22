@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/http/cookiejar"
 
 	"github.com/lzjluzijie/yitu/models"
 )
@@ -20,7 +21,10 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	models.PrepareEngine()
 	x := models.Engine()
-	//x.ShowSQL(true)
+
+	client := http.DefaultClient
+	cookieJar, _ := cookiejar.New(nil)
+	client.Jar = cookieJar
 
 	id := int64(0)
 	for {
@@ -49,7 +53,7 @@ func main() {
 
 		log.Println(tu.OneDriveURL)
 		m := md5.New()
-		resp, err := http.Get(tu.OneDriveURL)
+		resp, err := client.Get(tu.OneDriveURL)
 		if err != nil {
 			panic(err)
 		}
