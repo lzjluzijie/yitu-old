@@ -17,33 +17,23 @@ func GetTu(c *gin.Context) {
 
 	if len(id) == 64 {
 		tu, err = models.GetTuByHash(id)
-		if err != nil {
-			if err.Error() == "not found" {
-				c.String(http.StatusNotFound, err.Error())
-				return
-			}
-
-			c.String(http.StatusInternalServerError, err.Error())
-			return
-		}
-
 	} else {
-		tid, err := strconv.ParseUint(id, 10, 64)
-		if err != nil {
-			c.String(http.StatusBadRequest, err.Error())
+		tid, er := strconv.ParseUint(id, 10, 64)
+		if er != nil {
+			c.String(http.StatusBadRequest, er.Error())
 			return
 		}
 		tu, err = models.GetTuByID(tid)
-		if err != nil {
-			if err.Error() == "not found" {
-				c.String(http.StatusNotFound, err.Error())
-				return
-			}
+	}
 
-			c.String(http.StatusInternalServerError, err.Error())
+	if err != nil {
+		if err.Error() == "not found" {
+			c.String(http.StatusNotFound, err.Error())
 			return
 		}
 
+		c.String(http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	if (t == "/webp" || t == "webp") && tu.OneDriveWebPURL != "" {
@@ -57,6 +47,11 @@ func GetTu(c *gin.Context) {
 	}
 	if (t == "/fhdwebp" || t == "fhdwebp") && tu.OneDriveFHDWebPURL != "" {
 		c.Redirect(http.StatusMovedPermanently, tu.OneDriveFHDWebPURL)
+		return
+	}
+
+	if tu.OneDriveURL == "" {
+		c.String(http.StatusNotFound, "not found")
 		return
 	}
 
