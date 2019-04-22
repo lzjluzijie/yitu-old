@@ -126,6 +126,24 @@ func Upload(c *gin.Context) {
 
 	dc := RandomDeleteCode()
 
+	//upload original image
+	path := fmt.Sprintf(`/yitu/%s/%s/`, time.Now().Format("20060102"), SHA256)
+	ext := filepath.Ext(name)
+	noext := strings.TrimSuffix(name, ext)
+	id, parent, url, err := onedrive.UploadAndShare(path+name, data)
+	if err != nil {
+		log.Println(err.Error())
+		err = models.DeleteTu(tu)
+		return
+	}
+
+	g, err := onedrive.GetGuestURL(url)
+	if err != nil {
+		log.Println(err.Error())
+	} else {
+		url = g
+	}
+
 	//insert to database
 	tu = &models.Tu{
 		Name:       name,
@@ -136,7 +154,12 @@ func Upload(c *gin.Context) {
 		DeleteCode: dc,
 		Width:      width,
 		Height:     height,
+
+		OneDriveFolderID: parent,
+		OneDriveID:       id,
+		OneDriveURL:      url,
 	}
+
 	err = models.InsertTu(tu)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
@@ -146,36 +169,6 @@ func Upload(c *gin.Context) {
 	c.JSON(200, GetUploadResponse(tu))
 
 	//async upload
-	path := fmt.Sprintf(`/yitu/%s/%s/`, time.Now().Format("20060102"), SHA256)
-	ext := filepath.Ext(name)
-	noext := strings.TrimSuffix(name, ext)
-	go func() {
-		id, parent, url, err := onedrive.UploadAndShare(path+name, data)
-		if err != nil {
-			log.Println(err.Error())
-			err = models.DeleteTu(tu)
-			return
-		}
-
-		g, err := onedrive.GetGuestURL(url)
-		if err != nil {
-			log.Println(err.Error())
-		} else {
-			url = g
-		}
-
-		tu.OneDriveFolderID = parent
-		tu.OneDriveID = id
-		tu.OneDriveURL = url
-
-		//update
-		err = models.UpdateTu(tu)
-		if err != nil {
-			log.Println(err.Error())
-			return
-		}
-	}()
-
 	//WebP
 	go func() {
 		webp, err := image.Process(bimg.Options{
