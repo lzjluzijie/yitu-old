@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"crypto/md5"
 	"crypto/sha256"
 	"fmt"
 	"io"
@@ -26,7 +27,7 @@ const fhdWidth = 1920
 type UploadResponse struct {
 	Name      string `json:"name"`
 	Size      int64  `json:"size"`
-	Hash      string `json:"hash"`
+	MD5       string `json:"md5"`
 	URL       string `json:"url"`
 	DeleteURL string `json:"delete_url"`
 }
@@ -35,7 +36,7 @@ func GetUploadResponse(tu *models.Tu) (resp UploadResponse) {
 	return UploadResponse{
 		Name:      tu.Name,
 		Size:      tu.Size,
-		Hash:      tu.Hash,
+		MD5:       tu.MD5,
 		URL:       fmt.Sprintf("https://t.halu.lu/t/%d", tu.ID),
 		DeleteURL: fmt.Sprintf("https://t.halu.lu/api/delete/%s", tu.DeleteCode),
 	}
@@ -74,14 +75,16 @@ func Upload(c *gin.Context) {
 	}
 
 	//hash
-	h := sha256.New()
-	r := io.TeeReader(file, h)
+	m := md5.New()
+	s := sha256.New()
+	r := io.TeeReader(file, io.MultiWriter(m, s))
 	data, err := ioutil.ReadAll(r)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	hash := fmt.Sprintf("%x", h.Sum(nil))
+	MD5 := fmt.Sprintf("%x", m.Sum(nil))
+	SHA256 := fmt.Sprintf("%x", s.Sum(nil))
 
 	//check file size
 	size := int64(len(data))
@@ -90,8 +93,8 @@ func Upload(c *gin.Context) {
 		return
 	}
 
-	//check hash, insert new if already exist
-	tu, err := models.GetTuByHash(hash)
+	//check sha256, insert new if already exist
+	tu, err := models.GetTuBySHA256(SHA256)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
@@ -127,7 +130,8 @@ func Upload(c *gin.Context) {
 	tu = &models.Tu{
 		Name:       name,
 		Size:       size,
-		Hash:       hash,
+		MD5:        MD5,
+		SHA256:     SHA256,
 		IP:         c.ClientIP(),
 		DeleteCode: dc,
 		Width:      width,
@@ -142,7 +146,7 @@ func Upload(c *gin.Context) {
 	c.JSON(200, GetUploadResponse(tu))
 
 	//async upload
-	path := fmt.Sprintf(`/yitu/%s/%s/`, time.Now().Format("20060102"), hash)
+	path := fmt.Sprintf(`/yitu/%s/%s/`, time.Now().Format("20060102"), SHA256)
 	ext := filepath.Ext(name)
 	noext := strings.TrimSuffix(name, ext)
 	go func() {

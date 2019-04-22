@@ -2,6 +2,7 @@ package models
 
 import (
 	"log"
+	"os"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -17,7 +18,7 @@ func init() {
 		panic(err)
 	}
 
-	engine.SetLogger(nil)
+	engine.SetLogger(xorm.NewSimpleLogger(os.Stdout))
 	engine.SetMapper(core.GonicMapper{})
 
 	location, err := time.LoadLocation("Asia/Shanghai")

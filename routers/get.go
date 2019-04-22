@@ -15,8 +15,10 @@ func GetTu(c *gin.Context) {
 	var tu *models.Tu
 	var err error
 
-	if len(id) == 64 {
-		tu, err = models.GetTuByHash(id)
+	if len(id) == 32 {
+		tu, err = models.GetTuByMD5(id)
+	} else if len(id) == 64 {
+		tu, err = models.GetTuBySHA256(id)
 	} else {
 		tid, er := strconv.ParseUint(id, 10, 64)
 		if er != nil {

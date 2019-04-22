@@ -6,11 +6,12 @@ import (
 )
 
 type Tu struct {
-	ID   int64 `xorm:"pk autoincr"`
-	Name string
-	Size int64
-	Hash string
-	IP   string
+	ID     int64 `xorm:"notnull pk autoincr"`
+	Name   string
+	Size   int64
+	MD5    string `xorm:"'md5'"`
+	SHA256 string `xorm:"'sha256'"`
+	IP     string
 
 	DeleteCode string
 
@@ -77,8 +78,14 @@ func GetTuByID(id uint64) (tu *Tu, err error) {
 	return
 }
 
-func GetTuByHash(hash string) (tu *Tu, err error) {
-	tu = &Tu{Hash: hash}
+func GetTuByMD5(md5 string) (tu *Tu, err error) {
+	tu = &Tu{MD5: md5}
+	_, err = x.Get(tu)
+	return
+}
+
+func GetTuBySHA256(sha256 string) (tu *Tu, err error) {
+	tu = &Tu{SHA256: sha256}
 	_, err = x.Get(tu)
 	return
 }
