@@ -1,5 +1,5 @@
 <template>
-    <button class="button is-success clipboard" v-bind:data-clipboard-text="url">{{ text }}</button>
+    <button class="button is-success clipboard" :data-clipboard-text="url">{{ text }}</button>
 </template>
 
 <script>
@@ -10,7 +10,7 @@
 </script>
 
 <style scoped>
-.clipboard{
+.clipboard {
     margin-top: 3px;
 }
 </style>
