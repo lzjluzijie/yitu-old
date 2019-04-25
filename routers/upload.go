@@ -9,6 +9,8 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"net/http/cookiejar"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -54,23 +56,48 @@ func RandomDeleteCode() (dc string) {
 }
 
 func Upload(c *gin.Context) {
-	//original file
-	f, err := c.FormFile("tu")
-	if err != nil {
-		c.String(http.StatusBadRequest, err.Error())
-		return
+	var name string
+	var size int64
+	var file io.Reader
+
+	url := c.PostForm("url")
+	if url != "" {
+		client := http.DefaultClient
+		jar, err := cookiejar.New(nil)
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
+
+		client.Jar = jar
+
+		resp, err := client.Get(url)
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
+
+		name = path.Base(resp.Request.URL.String())
+		size = resp.ContentLength
+		file = resp.Body
+	} else {
+		f, err := c.FormFile("tu")
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
+
+		name = f.Filename
+		size = f.Size
+		file, err = f.Open()
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
 	}
 
-	name := f.Filename
-
-	if f.Size >= 50*1024*1024 {
+	if size >= 50*1024*1024 {
 		c.String(http.StatusBadRequest, "file too big")
-		return
-	}
-
-	file, err := f.Open()
-	if err != nil {
-		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -87,9 +114,8 @@ func Upload(c *gin.Context) {
 	SHA256 := fmt.Sprintf("%x", s.Sum(nil))
 
 	//check file size
-	size := int64(len(data))
-	if f.Size != size {
-		c.String(http.StatusBadRequest, fmt.Sprintf("file size does not match: %d, %d", f.Size, size))
+	if size != int64(len(data)) {
+		c.String(http.StatusBadRequest, fmt.Sprintf("file size does not match: %d, %d", size, int64(len(data))))
 		return
 	}
 
