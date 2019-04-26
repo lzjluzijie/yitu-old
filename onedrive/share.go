@@ -44,7 +44,7 @@ func Share(id string) (url string, err error) {
 		return
 	}
 
-	url =GetGuestURL(url)
+	url = GetDownloadURL(url)
 	return
 }
 
@@ -54,16 +54,16 @@ var client = &http.Client{
 	},
 }
 
-func GetGuestURL(url string) (d string) {
+func GetDownloadURL(url string) (d string) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Println("recovered: ", r)
 		}
 	}()
 
-	d = strings.Replace(url,"/:i:/g", "",1)
+	d = strings.Replace(url, "/:i:/g", "", 1)
 	x := strings.LastIndexByte(d, '/')
 	w := strings.LastIndexByte(d, '?')
-	d = d[:x] + "/_layouts/15/download.aspx?share=" + d[x+1:w]+"&" + d[w:]
+	d = d[:x] + "/_layouts/15/download.aspx?share=" + d[x+1:w]
 	return
 }
