@@ -56,6 +56,7 @@ func Share(id string) (url string, err error) {
 
 func GetDownloadURL(url string) string {
 	url = strings.Replace(url, "/:i:/g", "", 1)
+	url = strings.Replace(url, "/:u:/g", "", 1)
 
 	x := strings.LastIndexByte(url, '/')
 	w := strings.LastIndexByte(url, '?')
