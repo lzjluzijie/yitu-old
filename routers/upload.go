@@ -190,7 +190,7 @@ func Upload(c *gin.Context) {
 	//async upload
 	//WebP
 	go func() {
-		if image.Type() == bimg.ImageTypeName(bimg.GIF) {
+		if ext == ".gif" {
 			return
 		}
 
@@ -253,7 +253,7 @@ func Upload(c *gin.Context) {
 
 		//FHD WebP
 		go func() {
-			if image.Type() == bimg.ImageTypeName(bimg.GIF) {
+			if ext == ".gif" {
 				return
 			}
 
