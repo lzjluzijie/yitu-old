@@ -197,6 +197,10 @@ func Upload(c *gin.Context) {
 	//async upload
 	//WebP
 	go func() {
+		if image.Type() == "gif" {
+			return
+		}
+
 		webp, err := image.Process(bimg.Options{
 			Type:    bimg.WEBP,
 			Quality: 95,
@@ -270,6 +274,10 @@ func Upload(c *gin.Context) {
 
 		//FHD WebP
 		go func() {
+			if image.Type() == "gif" {
+				return
+			}
+
 			fhd, err := image.Process(bimg.Options{
 				Width:   fhdWidth,
 				Height:  fhdHeight,
