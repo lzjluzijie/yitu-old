@@ -2,13 +2,14 @@ package main
 
 import (
 	"log"
+	"strings"
 
 	"github.com/lzjluzijie/yitu/models"
 	"github.com/lzjluzijie/yitu/onedrive"
 )
 
 /*
-upgrade from v1.0.1 to v1.0.2
+upgrade from v1.0.2 to v1.0.3
 re-share images and update urls
 */
 
@@ -33,30 +34,20 @@ func main() {
 
 		log.Println(tu.OneDriveID)
 
-		tu.OneDriveURL, err = ReShare(tu.OneDriveID)
-		if err != nil {
-			panic(err)
+		if tu.OneDriveURL != "" {
+			tu.OneDriveURL = CutURL(tu.OneDriveURL)
 		}
 
-		if tu.OneDriveWebPID != "" {
-			tu.OneDriveWebPURL, err = ReShare(tu.OneDriveWebPID)
-			if err != nil {
-				panic(err)
-			}
+		if tu.OneDriveWebPURL != "" {
+			tu.OneDriveWebPURL = CutURL(tu.OneDriveWebPURL)
 		}
 
-		if tu.OneDriveFHDID != "" {
-			tu.OneDriveFHDURL, err = ReShare(tu.OneDriveFHDID)
-			if err != nil {
-				panic(err)
-			}
+		if tu.OneDriveFHDURL != "" {
+			tu.OneDriveFHDURL = CutURL(tu.OneDriveFHDURL)
 		}
 
-		if tu.OneDriveFHDWebPID != "" {
-			tu.OneDriveFHDWebPURL, err = ReShare(tu.OneDriveFHDWebPID)
-			if err != nil {
-				panic(err)
-			}
+		if tu.OneDriveFHDWebPURL != "" {
+			tu.OneDriveFHDWebPURL = CutURL(tu.OneDriveFHDWebPURL)
 		}
 
 		_, err = x.Table(new(models.Tu)).Where("sha256=?", tu.SHA256).Update(map[string]interface{}{
@@ -75,15 +66,11 @@ func main() {
 	return
 }
 
-func ReShare(id string) (url string, err error) {
-	url, err = onedrive.Share(id)
-	if err != nil {
-		return
+func CutURL(url string) string {
+	p := strings.LastIndexByte(url, '&')
+	if p <= 0 {
+		return url
 	}
 
-	url, err = onedrive.GetDownloadURL(url)
-	if err != nil {
-		return
-	}
-	return
+	return url[:p]
 }

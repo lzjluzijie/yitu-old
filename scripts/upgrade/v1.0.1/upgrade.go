@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 
+	"github.com/lzjluzijie/yitu/onedrive"
+
 	"github.com/lzjluzijie/yitu/models"
 )
 
@@ -19,6 +21,7 @@ then this script will insert md5 for every tu
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	onedrive.LoadConfig()
 	models.PrepareEngine()
 	x := models.Engine()
 
