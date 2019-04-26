@@ -2,9 +2,9 @@ package onedrive
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -44,26 +44,29 @@ func Share(id string) (url string, err error) {
 		return
 	}
 
-	url = GetDownloadURL(url)
+	u := GetDownloadURL(shareResponse.Link.WebURL)
+	if u == "" {
+		err = errors.New("get download url error")
+		return
+	}
+
+	url = u
 	return
 }
 
-var client = &http.Client{
-	CheckRedirect: func(req *http.Request, via []*http.Request) error {
-		return http.ErrUseLastResponse
-	},
-}
+func GetDownloadURL(url string) string {
+	url = strings.Replace(url, "/:i:/g", "", 1)
 
-func GetDownloadURL(url string) (d string) {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Println("recovered: ", r)
-		}
-	}()
+	x := strings.LastIndexByte(url, '/')
+	w := strings.LastIndexByte(url, '?')
 
-	d = strings.Replace(url, "/:i:/g", "", 1)
-	x := strings.LastIndexByte(d, '/')
-	w := strings.LastIndexByte(d, '?')
-	d = d[:x] + "/_layouts/15/download.aspx?share=" + d[x+1:w]
-	return
+	if x <= 0 {
+		return ""
+	}
+
+	if x > w {
+		return url[:x] + "/_layouts/15/download.aspx?share=" + url[x+1:]
+	}
+
+	return url[:x] + "/_layouts/15/download.aspx?share=" + url[x+1:w]
 }
