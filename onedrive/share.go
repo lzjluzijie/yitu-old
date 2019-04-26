@@ -73,5 +73,6 @@ func GetGuestURL(url string) (g string, err error) {
 	}
 
 	g = resp.Header.Get("Location")
+	g = strings.Replace(g, "guestaccess.aspx", "download.aspx", 1)
 	return
 }
