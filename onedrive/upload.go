@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 type UploadResponse struct {
@@ -80,6 +81,12 @@ func UploadAndShare(path string, data []byte) (id, parent, url string, err error
 	if err != nil {
 		return
 	}
-	url += "?download=1"
+
+	g, err := GetGuestURL(url)
+	if err != nil {
+		return
+	}
+
+	url = strings.Replace(g, "guestaccess.aspx", "download.aspx", 1)
 	return
 }

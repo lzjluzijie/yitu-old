@@ -163,13 +163,6 @@ func Upload(c *gin.Context) {
 		return
 	}
 
-	g, err := onedrive.GetGuestURL(url)
-	if err != nil {
-		log.Println(err.Error())
-	} else {
-		url = g
-	}
-
 	//insert to database
 	tu = &models.Tu{
 		Name:       name,
@@ -216,13 +209,6 @@ func Upload(c *gin.Context) {
 			return
 		}
 
-		g, err := onedrive.GetGuestURL(url)
-		if err != nil {
-			log.Println(err.Error())
-		} else {
-			url = g
-		}
-
 		tu.OneDriveWebPID = id
 		tu.OneDriveWebPURL = url
 
@@ -253,13 +239,6 @@ func Upload(c *gin.Context) {
 			if err != nil {
 				log.Println(err.Error())
 				return
-			}
-
-			g, err := onedrive.GetGuestURL(url)
-			if err != nil {
-				log.Println(err.Error())
-			} else {
-				url = g
 			}
 
 			tu.OneDriveFHDID = id
@@ -293,13 +272,6 @@ func Upload(c *gin.Context) {
 			if err != nil {
 				log.Println(err.Error())
 				return
-			}
-
-			g, err := onedrive.GetGuestURL(url)
-			if err != nil {
-				log.Println(err.Error())
-			} else {
-				url = g
 			}
 
 			tu.OneDriveFHDWebPID = id
