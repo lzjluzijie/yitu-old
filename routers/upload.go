@@ -7,7 +7,6 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
-	"math/rand"
 	"net/http"
 	"net/http/cookiejar"
 	"path"
@@ -44,14 +43,10 @@ func GetUploadResponse(tu *models.Tu) (resp UploadResponse) {
 	}
 }
 
-func RandomDeleteCode() (dc string) {
-	r := make([]byte, 8)
-	_, err := rand.Read(r)
-	if err != nil {
-		panic(err)
-	}
+func DeleteCode(hash string) (dc string) {
+	s := sha256.Sum256([]byte(fmt.Sprintf("%s random delete code %d", hash, time.Now().UnixNano())))
 
-	dc = fmt.Sprintf("%x", r)
+	dc = fmt.Sprintf("%x", s[:8])
 	return
 }
 
@@ -127,7 +122,7 @@ func Upload(c *gin.Context) {
 	}
 	if tu.ID != 0 {
 		tu.ID = 0
-		tu.DeleteCode = RandomDeleteCode()
+		tu.DeleteCode = DeleteCode(SHA256)
 
 		err = models.InsertTu(tu)
 		if err != nil {
@@ -150,8 +145,6 @@ func Upload(c *gin.Context) {
 	width := is.Width
 	height := is.Height
 
-	dc := RandomDeleteCode()
-
 	//upload original image
 	path := fmt.Sprintf(`/yitu/%s/%s/`, time.Now().Format("20060102"), SHA256)
 	ext := filepath.Ext(name)
@@ -170,7 +163,7 @@ func Upload(c *gin.Context) {
 		MD5:        MD5,
 		SHA256:     SHA256,
 		IP:         c.ClientIP(),
-		DeleteCode: dc,
+		DeleteCode: DeleteCode(SHA256),
 		Width:      width,
 		Height:     height,
 
