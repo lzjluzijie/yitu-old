@@ -2,9 +2,9 @@ package onedrive
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -44,7 +44,7 @@ func Share(id string) (url string, err error) {
 		return
 	}
 
-	url = shareResponse.Link.WebURL
+	url =GetGuestURL(url)
 	return
 }
 
@@ -54,25 +54,16 @@ var client = &http.Client{
 	},
 }
 
-func GetGuestURL(url string) (g string, err error) {
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return
-	}
+func GetGuestURL(url string) (d string) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println("recovered: ", r)
+		}
+	}()
 
-	resp, err := client.Do(req)
-	if err != nil {
-		return
-	}
-
-	err = nil
-
-	if resp.StatusCode != 301 {
-		err = errors.New(fmt.Sprintf("invalid http status code: %d", resp.StatusCode))
-		return
-	}
-
-	g = resp.Header.Get("Location")
-	g = strings.Replace(g, "guestaccess.aspx", "download.aspx", 1)
+	d = strings.Replace(url,"/:i:/g", "",1)
+	x := strings.LastIndexByte(d, '/')
+	w := strings.LastIndexByte(d, '?')
+	d = d[:x] + "/_layouts/15/download.aspx?share=" + d[x+1:w]+"&" + d[w:]
 	return
 }

@@ -81,10 +81,5 @@ func UploadAndShare(path string, data []byte) (id, parent, url string, err error
 		return
 	}
 
-	url, err = GetGuestURL(url)
-	if err != nil {
-		return
-	}
-
 	return
 }
