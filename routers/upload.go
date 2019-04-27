@@ -183,7 +183,7 @@ func Upload(c *gin.Context) {
 	//async upload
 	//WebP
 	go func() {
-		if ext == ".gif" {
+		if ext == ".gif" || ext == ".webp" {
 			return
 		}
 
@@ -246,7 +246,7 @@ func Upload(c *gin.Context) {
 
 		//FHD WebP
 		go func() {
-			if ext == ".gif" {
+			if ext == ".gif" || ext == ".webp" {
 				return
 			}
 
