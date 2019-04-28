@@ -86,7 +86,7 @@ func GetTu(t *Tu) (has bool, tu *Tu, err error) {
 
 	go func() {
 		tu.Requests++
-		_, err := x.Update(tu)
+		_, err := x.ID(tu.ID).Update(tu)
 		if err != nil {
 			log.Println(err.Error())
 		}
