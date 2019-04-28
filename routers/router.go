@@ -1,14 +1,12 @@
 package routers
 
 import (
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
 func RegisterRouters(router *gin.Engine) {
-	router.StaticFile("/", "./frontend/dist/index.html")
-	router.StaticFile("/index.html", "./frontend/dist/index.html")
-	router.Static("/js", "./frontend/dist/js")
-	router.Static("/css", "./frontend/dist/css")
+	router.Use(static.Serve("/", static.LocalFile("frontend/dist", false)))
 
 	router.GET("/t/:id", GetTu)
 	router.GET("/t/:id/*type", GetTu)
