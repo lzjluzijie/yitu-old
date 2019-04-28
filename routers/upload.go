@@ -29,6 +29,7 @@ type UploadResponse struct {
 	Name      string `json:"name"`
 	Size      int64  `json:"size"`
 	MD5       string `json:"md5"`
+	SHA256    string `json:"sha256"`
 	URL       string `json:"url"`
 	DeleteURL string `json:"delete_url"`
 }
@@ -38,6 +39,7 @@ func GetUploadResponse(tu *models.Tu) (resp UploadResponse) {
 		Name:      tu.Name,
 		Size:      tu.Size,
 		MD5:       tu.MD5,
+		SHA256:    tu.SHA256,
 		URL:       fmt.Sprintf("https://t.halu.lu/t/%d", tu.ID),
 		DeleteURL: fmt.Sprintf("https://t.halu.lu/api/delete/%s", tu.DeleteCode),
 	}
@@ -115,12 +117,14 @@ func Upload(c *gin.Context) {
 	}
 
 	//check sha256, insert new if already exist
-	tu, err := models.GetTuBySHA256(SHA256)
+	has, tu, err := models.GetTu(&models.Tu{SHA256: SHA256})
+
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
-	if tu.ID != 0 {
+
+	if has {
 		tu.ID = 0
 		tu.DeleteCode = DeleteCode(SHA256)
 

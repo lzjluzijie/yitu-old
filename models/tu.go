@@ -64,29 +64,15 @@ func DeleteByCode(dc string) (err error) {
 	return
 }
 
-func GetTuByID(id uint64) (tu *Tu, err error) {
-	tu = new(Tu)
-	has, err := x.ID(id).Get(tu)
-	if err != nil {
-		return
+func GetTu(t *Tu) (has bool, tu *Tu, err error) {
+	tu = &Tu{}
+
+	if t.ID != 0 {
+		has, err = x.ID(t.ID).Get(tu)
+	} else {
+		has, err = x.Get(tu)
 	}
 
-	if !has {
-		err = errors.New("not found")
-		return
-	}
-	return
-}
-
-func GetTuByMD5(md5 string) (tu *Tu, err error) {
-	tu = &Tu{MD5: md5}
-	_, err = x.Get(tu)
-	return
-}
-
-func GetTuBySHA256(sha256 string) (tu *Tu, err error) {
-	tu = &Tu{SHA256: sha256}
-	_, err = x.Get(tu)
 	return
 }
 

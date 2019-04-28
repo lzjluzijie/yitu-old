@@ -14,27 +14,28 @@ func GetTu(c *gin.Context) {
 
 	var tu *models.Tu
 	var err error
+	var has bool
 
 	if len(id) == 32 {
-		tu, err = models.GetTuByMD5(id)
+		has, tu, err = models.GetTu(&models.Tu{MD5: id})
 	} else if len(id) == 64 {
-		tu, err = models.GetTuBySHA256(id)
+		has, tu, err = models.GetTu(&models.Tu{SHA256: id})
 	} else {
-		tid, er := strconv.ParseUint(id, 10, 64)
+		tid, er := strconv.ParseInt(id, 10, 64)
 		if er != nil {
 			c.String(http.StatusBadRequest, er.Error())
 			return
 		}
-		tu, err = models.GetTuByID(tid)
+		has, tu, err = models.GetTu(&models.Tu{ID: tid})
 	}
 
 	if err != nil {
-		if err.Error() == "not found" {
-			c.String(http.StatusNotFound, err.Error())
-			return
-		}
-
 		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if !has {
+		c.String(http.StatusNotFound, "not found")
 		return
 	}
 
