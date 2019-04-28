@@ -68,12 +68,10 @@ func DeleteByCode(dc string) (err error) {
 }
 
 func GetTu(t *Tu) (has bool, tu *Tu, err error) {
-	tu = &Tu{}
-
 	if t.ID != 0 {
-		has, err = x.ID(t.ID).Get(tu)
+		has, err = x.ID(t.ID).Get(t)
 	} else {
-		has, err = x.Get(tu)
+		has, err = x.Get(t)
 	}
 
 	if err != nil {
@@ -83,6 +81,8 @@ func GetTu(t *Tu) (has bool, tu *Tu, err error) {
 	if !has {
 		return
 	}
+
+	tu = t
 
 	go func() {
 		tu.Requests++

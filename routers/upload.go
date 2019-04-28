@@ -125,24 +125,9 @@ func Upload(c *gin.Context) {
 	}
 
 	if has {
-		log.Println(222)
-		tu = &models.Tu{
-			Name:               name,
-			Size:               size,
-			MD5:                MD5,
-			SHA256:             SHA256,
-			IP:                 c.ClientIP(),
-			DeleteCode:         DeleteCode(SHA256),
-			OneDriveFolderID:   tu.OneDriveFolderID,
-			OneDriveID:         tu.OneDriveID,
-			OneDriveURL:        tu.OneDriveURL,
-			OneDriveWebPID:     tu.OneDriveWebPID,
-			OneDriveWebPURL:    tu.OneDriveWebPURL,
-			OneDriveFHDID:      tu.OneDriveFHDID,
-			OneDriveFHDURL:     tu.OneDriveFHDURL,
-			OneDriveFHDWebPID:  tu.OneDriveFHDWebPID,
-			OneDriveFHDWebPURL: tu.OneDriveFHDWebPURL,
-		}
+		tu.ID = 0
+		tu.Name = name
+		tu.DeleteCode = DeleteCode(SHA256)
 
 		err = models.InsertTu(tu)
 		if err != nil {
@@ -153,8 +138,6 @@ func Upload(c *gin.Context) {
 		c.JSON(200, GetUploadResponse(tu))
 		return
 	}
-
-	log.Println(111)
 
 	//bimg check image
 	image := bimg.NewImage(data)
