@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"log"
 	"time"
 )
 
@@ -11,9 +12,11 @@ type Tu struct {
 	Size   int64
 	MD5    string `xorm:"'md5'"`
 	SHA256 string `xorm:"'sha256'"`
-	IP     string
 
+	IP         string
 	DeleteCode string
+
+	Requests uint64
 
 	Width  int
 	Height int
@@ -73,6 +76,21 @@ func GetTu(t *Tu) (has bool, tu *Tu, err error) {
 		has, err = x.Get(tu)
 	}
 
+	if err != nil {
+		return
+	}
+
+	if !has {
+		return
+	}
+
+	go func() {
+		tu.Requests++
+		_, err := x.Update(tu)
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}()
 	return
 }
 
