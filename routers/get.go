@@ -44,8 +44,7 @@ func GetTu(c *gin.Context) {
 		return
 	}
 
-	c.Header("Cache-Control", "public")
-	c.Header("Cache-Control", "max-age=3110400")
+	c.Header("Cache-Control", "public, max-age=3110400")
 
 	if (t == "/webp" || t == "webp") && tu.OneDriveWebPURL != "" {
 		c.Redirect(http.StatusMovedPermanently, tu.OneDriveWebPURL)
