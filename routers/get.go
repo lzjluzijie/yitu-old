@@ -39,6 +39,14 @@ func GetTu(c *gin.Context) {
 		return
 	}
 
+	if tu.OneDriveURL == "" {
+		c.String(http.StatusNotFound, "not found")
+		return
+	}
+
+	c.Header("Cache-Control", "public")
+	c.Header("Cache-Control", "max-age=3110400")
+
 	if (t == "/webp" || t == "webp") && tu.OneDriveWebPURL != "" {
 		c.Redirect(http.StatusMovedPermanently, tu.OneDriveWebPURL)
 		return
@@ -50,11 +58,6 @@ func GetTu(c *gin.Context) {
 	}
 	if (t == "/fhdwebp" || t == "fhdwebp") && tu.OneDriveFHDWebPURL != "" {
 		c.Redirect(http.StatusMovedPermanently, tu.OneDriveFHDWebPURL)
-		return
-	}
-
-	if tu.OneDriveURL == "" {
-		c.String(http.StatusNotFound, "not found")
 		return
 	}
 
