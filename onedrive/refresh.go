@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"time"
 )
 
 type RefreshResponse struct {
@@ -13,7 +12,7 @@ type RefreshResponse struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-func Refresh() (err error) {
+func Refresh() (c Config, err error) {
 	v := url.Values{
 		"client_id":     {config.ClientID},
 		"client_secret": {config.ClientSecret},
@@ -41,18 +40,6 @@ func Refresh() (err error) {
 	config.AccessToken = refreshResponse.AccessToken
 	config.RefreshToken = refreshResponse.RefreshToken
 
-	SaveConfig()
-
-	go func() {
-		time.Sleep(59 * time.Minute)
-		err = Refresh()
-
-		for err != nil {
-			time.Sleep(5 * time.Second)
-			err = Refresh()
-		}
-
-	}()
-
+	c = config
 	return
 }

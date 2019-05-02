@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd ..
+cd ../..
 time="$(date +\%Y\%m\%d\%H\%M\%S)"
 
 sqlite3 yitu.db  << EOF

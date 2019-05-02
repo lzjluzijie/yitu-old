@@ -156,8 +156,7 @@ func Upload(c *gin.Context) {
 	noext := strings.TrimSuffix(name, ext)
 	id, parent, url, err := onedrive.UploadAndShare(path+name, data)
 	if err != nil {
-		log.Println(err.Error())
-		err = models.DeleteTu(tu)
+		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 

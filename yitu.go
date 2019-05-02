@@ -5,12 +5,12 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/lzjluzijie/yitu/config"
+
 	"github.com/lzjluzijie/yitu/models"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-
-	"github.com/lzjluzijie/yitu/onedrive"
 
 	"github.com/lzjluzijie/yitu/routers"
 )
@@ -21,7 +21,8 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Printf("yitu %s by halulu", VERSION)
 
-	models.PrepareEngine()
+	config.LoadConfig()
+	models.PrepareEngine(config.C.Database.Driver, config.C.Database.Source)
 
 	engine := gin.Default()
 
@@ -31,8 +32,6 @@ func main() {
 	engine.Use(cors.New(corsConfig))
 
 	routers.RegisterRouters(engine)
-	onedrive.LoadConfig()
-	onedrive.Refresh()
 
 	go func() {
 		err := http.ListenAndServe(":80", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
