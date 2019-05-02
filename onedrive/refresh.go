@@ -16,7 +16,7 @@ func Refresh() (c Config, err error) {
 	v := url.Values{
 		"client_id":     {config.ClientID},
 		"client_secret": {config.ClientSecret},
-		"redirect_uri":  {"http://127.0.0.1:23333"},
+		"redirect_uri":  {config.RedirectURI},
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {config.RefreshToken},
 	}

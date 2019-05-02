@@ -59,7 +59,8 @@ yitu.json
     "ClientID": "4caae01e-515a-490f-bde7-92cff3b895ac",
     "ClientSecret": "qohmO45%%-jtxUVCAGP372{",
     "AccessToken": "AccessToken",
-    "RefreshToken": "RefreshToken"
+    "RefreshToken": "RefreshToken",
+    "RedirectURI": "http://127.0.0.1:23333"
   }
 }
 ```

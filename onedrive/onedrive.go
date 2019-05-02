@@ -13,6 +13,7 @@ type Config struct {
 	ClientSecret string
 	AccessToken  string
 	RefreshToken string
+	RedirectURI  string
 }
 
 func SetConfig(c Config) {
