@@ -20,7 +20,7 @@
 </template>
 
 <script>
-    const VERSION = `v1.0.5`;
+    const VERSION = `v1.1.0`;
 
     import Vue from 'vue'
     import ClipboardJS from 'clipboard';
