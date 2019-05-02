@@ -67,6 +67,13 @@ yitu.json
 ## Backup
 
 ### sqlite
+
 ```
-0 * * * * cd ~/yitu/scripts/backup && bash backup.sh
+0 * * * * cd ~/yitu/scripts/backup && bash sqlite3.sh
+```
+
+### mysql
+
+```
+0 * * * * mysqldump -u root -pPassword --single-transaction --quick --lock-tables=false yitu > yitu-$(date +\%Y\%m\%d\%H\%M\%S).sql
 ```
