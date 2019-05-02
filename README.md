@@ -2,6 +2,13 @@
 
 ## Installation
 
+### NodeJS
+
+```bash
+curl -sL https://rpm.nodesource.com/setup_10.x | sudo bash -
+sudo yum install -y nodejs npm
+```
+
 ### bimg
 
 https://github.com/h2non/bimg#installation

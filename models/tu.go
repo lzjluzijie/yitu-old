@@ -96,7 +96,10 @@ func GetTu(t *Tu) (has bool, tu *Tu, err error) {
 
 func GetUploadHistory(ip string) (t []*Tu, err error) {
 	t = make([]*Tu, 0)
-	//todo fix timezone, this is -2 hour if server is CST
-	err = x.Where("ip = ? and created_at > ?", ip, time.Now().Add(-10*time.Hour)).Find(&t)
+	if x.DriverName() == "sqlite3" {
+		err = x.Where("ip = ? and created_at > ?", ip, time.Now().UTC().Add(-1*time.Hour)).Find(&t)
+	} else {
+		err = x.Where("ip = ? and created_at > ?", ip, time.Now().Add(-1*time.Hour)).Find(&t)
+	}
 	return
 }
