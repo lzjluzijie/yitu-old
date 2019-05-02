@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/lzjluzijie/yitu/config"
+	"github.com/lzjluzijie/yitu/conf"
 
 	"github.com/lzjluzijie/yitu/models"
 
@@ -21,8 +21,8 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Printf("yitu %s by halulu", VERSION)
 
-	config.LoadConfig()
-	models.PrepareEngine(config.C.Database.Driver, config.C.Database.Source)
+	config := conf.LoadConfig()
+	models.PrepareEngine(config.Database.Driver, config.Database.Source)
 
 	engine := gin.Default()
 
@@ -34,7 +34,7 @@ func main() {
 	routers.RegisterRouters(engine)
 
 	go func() {
-		err := http.ListenAndServe(":80", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err := http.ListenAndServe(config.HttpAddr, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "https://t.halu.lu"+r.URL.String(), http.StatusMovedPermanently)
 		}))
 		if err != nil {
@@ -42,7 +42,7 @@ func main() {
 		}
 	}()
 
-	err := http.ListenAndServeTLS(":443", "cert", "key", engine)
+	err := http.ListenAndServeTLS(config.HttpsAddr, "cert", "key", engine)
 	if err != nil {
 		fmt.Println(err.Error())
 	}

@@ -1,5 +1,6 @@
-package config
+package conf
 
+import "C"
 import (
 	"encoding/json"
 	"io/ioutil"
@@ -9,11 +10,13 @@ import (
 	"github.com/lzjluzijie/yitu/onedrive"
 )
 
-var C *Config
-
 type Config struct {
-	Database DatabaseConfig
-	OneDrive onedrive.Config
+	HttpAddr  string
+	HttpsAddr string
+	Cert      string
+	Key       string
+	Database  DatabaseConfig
+	OneDrive  onedrive.Config
 }
 
 type DatabaseConfig struct {
@@ -21,19 +24,19 @@ type DatabaseConfig struct {
 	Source string
 }
 
-func LoadConfig() {
+func LoadConfig() (config *Config) {
 	data, err := ioutil.ReadFile("yitu.json")
 	if err != nil {
 		panic(err.Error())
 	}
 
-	C = &Config{}
-	err = json.Unmarshal(data, C)
+	config = &Config{}
+	err = json.Unmarshal(data, config)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	onedrive.SetConfig(C.OneDrive)
+	onedrive.SetConfig(config.OneDrive)
 
 	go func() {
 		for {
@@ -45,15 +48,16 @@ func LoadConfig() {
 				oc, err = onedrive.Refresh()
 			}
 
-			C.OneDrive = oc
-			SaveConfig()
+			config.OneDrive = oc
+			config.Save()
 			time.Sleep(59 * time.Minute)
 		}
 	}()
+	return
 }
 
-func SaveConfig() {
-	data, err := json.MarshalIndent(C, "", "    ")
+func (config *Config) Save() {
+	data, err := json.MarshalIndent(config, "", "    ")
 	if err != nil {
 		panic(err.Error())
 	}

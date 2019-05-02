@@ -47,6 +47,10 @@ yitu.json
 
 ```json
 {
+  "Cert": "path/to/cert",
+  "Key": "path/to/key",
+  "HttpPort": ":80",
+  "HttpsPort": ":443",
   "Database": {
     "Driver": "sqlite3",
     "Source": "./yitu.db?parseTime=true&loc=Local"
