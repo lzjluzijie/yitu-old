@@ -26,9 +26,9 @@ You need to get access token and refresh token first.
 
 ### Get authorization code with your browser
 
-https://login.microsoftonline.com/common/oauth2/v2.0/authorize?access_type=offline&client_id=4caae01e-515a-490f-bde7-92cff3b895ac&redirect_uri=http%3A%2F%2Flocalhost%3A23333%2F&response_type=code&scope=Files.Read+Files.ReadWrite+Files.Read.All+Files.ReadWrite.All+offline_access
+https://login.microsoftonline.com/common/oauth2/v2.0/authorize?access_type=offline&client_id=4caae01e-515a-490f-bde7-92cff3b895ac&response_type=code&scope=Files.Read+Files.ReadWrite+Files.Read.All+Files.ReadWrite.All+offline_access
 
-Open this url with your browser. After a few clicks, you will be redirect to `http://localhost:23333/`, the authorization code is in the url params.
+Open this url with your browser. After a few clicks, you will be redirect to `http://127.0.0.1:23333/`, the authorization code is in the url params.
 
 
 ### Redeem the code for tokens
