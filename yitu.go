@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/lzjluzijie/yitu/conf"
 	"log"
 	"net/http"
-
-	"github.com/lzjluzijie/yitu/conf"
 
 	"github.com/lzjluzijie/yitu/models"
 
@@ -33,16 +32,21 @@ func main() {
 
 	routers.RegisterRouters(engine)
 
-	go func() {
-		err := http.ListenAndServe(config.HttpAddr, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "https://t.halu.lu"+r.URL.String(), http.StatusMovedPermanently)
-		}))
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-	}()
+	//go func() {
+	//	err := http.ListenAndServeTLS(config.HttpsAddr, "cert", "key", engine)
+	//	if err != nil {
+	//		fmt.Println(err.Error())
+	//	}
+	//}()
 
-	err := http.ListenAndServeTLS(config.HttpsAddr, "cert", "key", engine)
+	//err := http.ListenAndServe(config.HttpAddr, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	//	http.Redirect(w, r, "https://t.halu.lu"+r.URL.String(), http.StatusMovedPermanently)
+	//}))
+	//if err != nil {
+	//	fmt.Println(err.Error())
+	//}
+
+	err := http.ListenAndServe(config.HttpAddr, engine)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
