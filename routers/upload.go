@@ -147,9 +147,19 @@ func Upload(c *gin.Context) {
 		return
 	}
 
+	///check orientation
+	metadata, err := image.Metadata()
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
 	width := is.Width
 	height := is.Height
-
+	if metadata.Orientation == 6 {
+		width = is.Height
+		height = is.Width
+	}
 	//upload original image
 	path := fmt.Sprintf(`/yitu/%s/%s/`, time.Now().Format("20060102"), SHA256)
 	ext := filepath.Ext(name)
