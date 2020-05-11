@@ -1,6 +1,7 @@
 .idea
 *.iml
 *.db
+*.exe
 
 cert
 key

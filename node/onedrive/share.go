@@ -20,8 +20,8 @@ type SharedLink struct {
 	WebURL string
 }
 
-func Share(id string) (url string, err error) {
-	req, err := NewRequest("POST", fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/items/%s/createLink", id), strings.NewReader(`{"type":"view","scope":"anonymous"}`))
+func (node *Node) Share(id string) (url string, err error) {
+	req, err := node.NewRequest("POST", fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/items/%s/createLink", id), strings.NewReader(`{"type":"view","scope":"anonymous"}`))
 	if err != nil {
 		return
 	}

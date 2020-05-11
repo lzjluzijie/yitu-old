@@ -1,53 +1,46 @@
 package main
 
 import (
-	"fmt"
-	"github.com/lzjluzijie/yitu/conf"
 	"log"
 	"net/http"
+	"time"
 
-	"github.com/lzjluzijie/yitu/models"
+	"github.com/lzjluzijie/yitu/node/onedrive"
 
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
+	"github.com/lzjluzijie/yitu/db"
 
-	"github.com/lzjluzijie/yitu/routers"
+	"github.com/lzjluzijie/yitu/conf"
+	"github.com/lzjluzijie/yitu/route"
 )
 
-const VERSION = `v1.1.0`
+const VERSION = `v0.2.0`
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Printf("yitu %s by halulu", VERSION)
 
 	config := conf.LoadConfig()
-	models.PrepareEngine(config.Database.Driver, config.Database.Source)
 
-	engine := gin.Default()
+	db.LoadDB(config.Database)
+	n := &onedrive.Node{Config: config.OneDrive}
+	route.SetN(n)
+	go func() {
+		for {
+			err := n.Refresh()
 
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"*"}
-	corsConfig.AllowHeaders = []string{"*"}
-	engine.Use(cors.New(corsConfig))
+			if err != nil {
+				log.Println(err.Error())
+				time.Sleep(5 * time.Second)
+			} else {
+				config.Save()
+				time.Sleep(50 * time.Minute)
+			}
+		}
+	}()
 
-	routers.RegisterRouters(engine)
-
-	//go func() {
-	//	err := http.ListenAndServeTLS(config.HttpsAddr, "cert", "key", engine)
-	//	if err != nil {
-	//		fmt.Println(err.Error())
-	//	}
-	//}()
-
-	//err := http.ListenAndServe(config.HttpAddr, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	//	http.Redirect(w, r, "https://t.halu.lu"+r.URL.String(), http.StatusMovedPermanently)
-	//}))
-	//if err != nil {
-	//	fmt.Println(err.Error())
-	//}
-
-	err := http.ListenAndServe(config.HttpAddr, engine)
+	r := route.NewEngine()
+	err := http.ListenAndServe(config.HttpAddr, r)
 	if err != nil {
-		fmt.Println(err.Error())
+		panic(err)
 	}
 }
