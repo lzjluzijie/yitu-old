@@ -21,11 +21,11 @@ type CreateSessionResponse struct {
 	UploadUrl string
 }
 
-func (node *Node) Upload(path string, data []byte) (id, parent string, err error) {
+func (n *Node) Upload(path string, data []byte) (id, parent string, err error) {
 	size := int64(len(data))
 	url := fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/root:%s:/createUploadSession", path)
 
-	req, err := node.NewRequest("POST", url, bytes.NewBufferString(`{"item": {"@microsoft.graph.conflictBehavior": "rename"}}`))
+	req, err := n.NewRequest("POST", url, bytes.NewBufferString(`{"item": {"@microsoft.graph.conflictBehavior": "rename"}}`))
 	if err != nil {
 		return
 	}
@@ -45,7 +45,7 @@ func (node *Node) Upload(path string, data []byte) (id, parent string, err error
 
 	uploadURL := createSessionResponse.UploadUrl
 
-	req, err = node.NewRequest("PUT", uploadURL, bytes.NewBuffer(data))
+	req, err = n.NewRequest("PUT", uploadURL, bytes.NewBuffer(data))
 	if err != nil {
 		return
 	}
@@ -67,19 +67,5 @@ func (node *Node) Upload(path string, data []byte) (id, parent string, err error
 
 	id = uploadResponse.ID
 	parent = uploadResponse.ParentReference.ID
-	return
-}
-
-func (node *Node) UploadAndShare(path string, data []byte) (id, parent, url string, err error) {
-	id, parent, err = node.Upload(path, data)
-	if err != nil {
-		return
-	}
-
-	url, err = node.Share(id)
-	if err != nil {
-		return
-	}
-
 	return
 }

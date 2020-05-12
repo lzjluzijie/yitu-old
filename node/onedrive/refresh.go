@@ -12,13 +12,13 @@ type RefreshResponse struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-func (node *Node) Refresh() (err error) {
+func (n *Node) Refresh() (err error) {
 	v := url.Values{
-		"client_id":     {node.ClientID},
-		"client_secret": {node.ClientSecret},
-		"redirect_uri":  {node.RedirectURI},
+		"client_id":     {n.ClientID},
+		"client_secret": {n.ClientSecret},
+		"redirect_uri":  {n.RedirectURI},
 		"grant_type":    {"refresh_token"},
-		"refresh_token": {node.RefreshToken},
+		"refresh_token": {n.RefreshToken},
 	}
 
 	resp, err := http.PostForm("https://login.microsoftonline.com/common/oauth2/v2.0/token", v)
@@ -37,7 +37,7 @@ func (node *Node) Refresh() (err error) {
 		return
 	}
 
-	node.AccessToken = refreshResponse.AccessToken
-	node.RefreshToken = refreshResponse.RefreshToken
+	n.AccessToken = refreshResponse.AccessToken
+	n.RefreshToken = refreshResponse.RefreshToken
 	return
 }

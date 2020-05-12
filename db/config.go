@@ -1,6 +1,9 @@
 package db
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+	"github.com/lzjluzijie/yitu/node/onedrive"
+)
 
 type Config struct {
 	Driver string
@@ -14,5 +17,6 @@ func LoadDB(c *Config) {
 	}
 
 	db = database
-	db.AutoMigrate(&Tu{})
+	db = db.Set("gorm:auto_preload", true)
+	db.AutoMigrate(&Tu{}, &onedrive.File{})
 }

@@ -12,8 +12,8 @@ type RenameResponse struct {
 	URL string `json:"@microsoft.graph.downloadUrl"`
 }
 
-func (node *Node) Rename(id, name string) (err error) {
-	req, err := node.NewRequest("PATCH", "https://graph.microsoft.com/v1.0/me/drive/items/"+id, bytes.NewBufferString(fmt.Sprintf(`{"name": "%s"}`, name)))
+func (n *Node) Rename(id, name string) (err error) {
+	req, err := n.NewRequest("PATCH", "https://graph.microsoft.com/v1.0/me/drive/items/"+id, bytes.NewBufferString(fmt.Sprintf(`{"name": "%s"}`, name)))
 	if err != nil {
 		return
 	}

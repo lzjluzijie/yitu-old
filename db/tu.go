@@ -1,5 +1,7 @@
 package db
 
+import "github.com/lzjluzijie/yitu/node/onedrive"
+
 type Tu struct {
 	Model
 	Name   string
@@ -7,15 +9,12 @@ type Tu struct {
 	MD5    string
 	SHA256 string
 
-	IP         string
-	DeleteCode string
+	IP string
 
 	Requests uint64
 
 	Width  int
 	Height int
 
-	OneDriveFolderID string
-	OneDriveID       string
-	OneDriveURL      string
+	OneDrive []onedrive.File `gorm:"foreignkey:TuID"`
 }

@@ -10,31 +10,29 @@ import (
 	"net/http/cookiejar"
 	"path"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lzjluzijie/yitu/db"
+	"github.com/lzjluzijie/yitu/node"
 )
 
 const MAXSIZE = 50 * 1024 * 1024
 
 type UploadResponse struct {
-	Name      string `json:"name"`
-	Size      int64  `json:"size"`
-	MD5       string `json:"md5"`
-	SHA256    string `json:"sha256"`
-	URL       string `json:"url"`
-	DeleteURL string `json:"delete_url"`
+	Name   string `json:"name"`
+	Size   int64  `json:"size"`
+	MD5    string `json:"md5"`
+	SHA256 string `json:"sha256"`
+	URL    string `json:"url"`
 }
 
 func NewUploadResponse(tu *db.Tu) (resp UploadResponse) {
 	return UploadResponse{
-		Name:      tu.Name,
-		Size:      tu.Size,
-		MD5:       tu.MD5,
-		SHA256:    tu.SHA256,
-		URL:       fmt.Sprintf("https://t.halu.lu/t/%d", tu.ID),
-		DeleteURL: fmt.Sprintf("https://t.halu.lu/api/delete/%s", tu.DeleteCode),
+		Name:   tu.Name,
+		Size:   tu.Size,
+		MD5:    tu.MD5,
+		SHA256: tu.SHA256,
+		URL:    fmt.Sprintf("https://t.halu.lu/t/%d", tu.ID),
 	}
 }
 
@@ -58,15 +56,21 @@ func GetTu(c *gin.Context) {
 	}
 
 	db.GetDB().Where(tu).First(tu)
+	fmt.Println(tu)
 
-	if tu.ID == 0 {
+	//t:= &onedrive.File{TuID: tu.ID}
+	//db.GetDB().Where(t).First(t)
+	//fmt.Println(t)
+
+	if tu.ID == 0 || len(tu.OneDrive) == 0 {
 		c.String(http.StatusNotFound, "not found")
 		return
 	}
 
 	//c.Header("Cache-Control", "public, max-age=3110400")
-	c.String(200, tu.SHA256)
-	//c.Redirect(http.StatusMovedPermanently, tu.OneDriveURL)
+	//c.String(200, tu.SHA256)
+
+	c.Redirect(http.StatusMovedPermanently, tu.OneDrive[0].RedirectURL)
 	return
 }
 
@@ -168,16 +172,6 @@ func UploadTu(c *gin.Context) {
 	//	height = is.Width
 	//}
 
-	//upload original image
-	path := fmt.Sprintf(`/yitu/%s/%s/`, time.Now().Format("20060102"), SHA256)
-	//ext := filepath.Ext(name)
-	//noext := strings.TrimSuffix(name, ext)
-	id, parent, url, err := n.UploadAndShare(path+name, data)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
-
 	//insert to database
 	tu = &db.Tu{
 		Name:   name,
@@ -185,15 +179,24 @@ func UploadTu(c *gin.Context) {
 		MD5:    MD5,
 		SHA256: SHA256,
 		IP:     c.ClientIP(),
-		//DeleteCode: DeleteCode(SHA256),
 		//Width:      width,
 		//Height:     height,
-
-		OneDriveFolderID: parent,
-		OneDriveID:       id,
-		OneDriveURL:      url,
 	}
 
 	db.GetDB().Create(tu)
 	c.JSON(200, NewUploadResponse(tu))
+
+	fmt.Println(tu)
+
+	go func() {
+		f := n.Handle(&node.Object{
+			Name:   name,
+			Size:   size,
+			MD5:    MD5,
+			SHA256: SHA256,
+			Data:   data,
+		})
+		f.TuID = tu.ID
+		db.GetDB().Create(f)
+	}()
 }
