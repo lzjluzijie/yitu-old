@@ -11,6 +11,8 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/h2non/bimg"
+
 	"github.com/gin-gonic/gin"
 	"github.com/lzjluzijie/yitu/db"
 	"github.com/lzjluzijie/yitu/node"
@@ -19,11 +21,13 @@ import (
 const MAXSIZE = 50 * 1024 * 1024
 
 type UploadResponse struct {
-	Name   string `json:"name"`
-	Size   int64  `json:"size"`
-	MD5    string `json:"md5"`
-	SHA256 string `json:"sha256"`
-	URL    string `json:"url"`
+	Name   string
+	Size   int64
+	MD5    string
+	SHA256 string
+	URL    string
+	Width  int
+	Height int
 }
 
 func NewUploadResponse(tu *db.Tu) (resp UploadResponse) {
@@ -33,6 +37,8 @@ func NewUploadResponse(tu *db.Tu) (resp UploadResponse) {
 		MD5:    tu.MD5,
 		SHA256: tu.SHA256,
 		URL:    fmt.Sprintf("https://t.halu.lu/t/%d", tu.ID),
+		Width:  tu.Width,
+		Height: tu.Height,
 	}
 }
 
@@ -150,27 +156,27 @@ func UploadTu(c *gin.Context) {
 		return
 	}
 
-	//bimg check image
-	//image := bimg.NewImage(data)
-	//is, err := image.Size()
-	//if err != nil {
-	//	c.String(http.StatusBadRequest, err.Error())
-	//	return
-	//}
+	// bimg check image
+	image := bimg.NewImage(data)
+	is, err := image.Size()
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
 
-	///check orientation
-	//metadata, err := image.Metadata()
-	//if err != nil {
-	//	c.String(http.StatusBadRequest, err.Error())
-	//	return
-	//}
+	// check orientation
+	metadata, err := image.Metadata()
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
 
-	//width := is.Width
-	//height := is.Height
-	//if metadata.Orientation == 6 {
-	//	width = is.Height
-	//	height = is.Width
-	//}
+	width := is.Width
+	height := is.Height
+	if metadata.Orientation == 6 {
+		width = is.Height
+		height = is.Width
+	}
 
 	//insert to database
 	tu = &db.Tu{
@@ -179,8 +185,8 @@ func UploadTu(c *gin.Context) {
 		MD5:    MD5,
 		SHA256: SHA256,
 		IP:     c.ClientIP(),
-		//Width:      width,
-		//Height:     height,
+		Width:  width,
+		Height: height,
 	}
 
 	db.GetDB().Create(tu)
